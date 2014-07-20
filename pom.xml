@@ -50,6 +50,11 @@
             <artifactId>clojure-jsr223</artifactId>
             <version>1.5.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.theoryinpractise.frege</groupId>
+            <artifactId>frege</artifactId>
+            <version>3.21.586-g026e8d7</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -67,6 +72,26 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>com.theoryinpractise.frege</groupId>
+                <artifactId>frege-maven-plugin</artifactId>
+                <version>1.0.5</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <inline>true</inline>
+                    <hints>true</hints>
+                    <sourceDirectory>src/main/frege</sourceDirectory>
+                    <outputDirectory>target/generated-sources/frege</outputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -101,6 +126,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <executions>
+                    <execution>
+                        <id>pre-compile</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <phase>compile</phase>
                         <goals>

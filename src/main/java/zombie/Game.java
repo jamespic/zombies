@@ -35,6 +35,10 @@ public class Game {
         "/rb-example.rb",
         "/clj-example.clj"
     };
+    private static final String[] FREGE_PLAYERS = new String[] {
+        "example.PureFregeExample",
+        "example.IOFregeExample",
+    };
     private static final String[] COLORS = new String[] {
         "Red",
         "Green",
@@ -67,6 +71,12 @@ public class Game {
     public static void registerJsr223Players() {
         for (String script: JSR223_PLAYERS) {
             PlayerRegistry.runJsr223Script(script);
+        }
+    }
+    
+    public static void registerFregePlayers() {
+        for (String className: FREGE_PLAYERS) {
+            PlayerRegistry.registerFregePlayer(className);
         }
     }
     
@@ -301,7 +311,7 @@ public class Game {
                             String color;
                             switch(player.name) {
                                 case Dead.DEADBODYNAME:
-                                    color = "grey"; break;
+                                    color = "white; background-color: black"; break;
                                 case Dead.ZOMBIENAME:
                                     color = "white; background-color: green"; break;
                                 default:
@@ -417,5 +427,6 @@ public class Game {
         registerSystemPlayers();
         registerCompiledPlayers();
         registerJsr223Players();
+        registerFregePlayers();
     }
 }

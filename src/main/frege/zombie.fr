@@ -1,0 +1,29 @@
+package zombie.FregeBindings where
+
+  data PlayerId = pure native zombie.PlayerId where
+    pure native getName :: PlayerId -> String
+    pure native getNumber :: PlayerId -> Int
+
+  data PlayerContext = pure native zombie.PlayerContext where
+    pure native getId :: PlayerContext -> PlayerId
+    pure native getBullets :: PlayerContext -> Int
+    pure native getX :: PlayerContext -> Int
+    pure native getY :: PlayerContext -> Int
+    pure native getGameClock :: PlayerContext -> Int
+    pure native lookAround :: PlayerContext -> Int -> Int -> PlayerId
+
+  data Action = pure native zombie.Action
+
+  data Shoot = pure native zombie.Shoot where
+    pure native new :: PlayerId -> Shoot
+
+  data Move = pure native zombie.Move where
+    pure native northeast zombie.Move.NORTHEAST :: Move
+    pure native north zombie.Move.NORTH :: Move
+    pure native northwest zombie.Move.NORTHWEST :: Move
+    pure native east zombie.Move.EAST :: Move
+    pure native stay zombie.Move.STAY :: Move
+    pure native west zombie.Move.WEST :: Move
+    pure native southeast zombie.Move.SOUTHEAST :: Move
+    pure native south zombie.Move.SOUTH :: Move
+    pure native southwest zombie.Move.SOUTHWEST :: Move

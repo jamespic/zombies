@@ -51,6 +51,15 @@ public class PlayerRegistry {
         }
     }
     
+    public static void registerFregePlayer(String className) {
+        try {
+            FregeAdapter player = new FregeAdapter(className);
+            registerPlayer(player.name, player);
+        } catch (Exception ex) {
+            Logger.getLogger(PlayerRegistry.class.getName()).log(Level.SEVERE, "Could not initialise "+ className, ex);
+        }
+    }
+    
     public static boolean isDeadOrUndead(String player) {
         return players.get().get(player) instanceof Dead;
     }

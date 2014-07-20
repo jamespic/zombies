@@ -1,0 +1,4 @@
+module example.PureFregeExample where
+  import zombie.FregeBindings
+  doTurn :: PlayerContext -> Action
+  doTurn context = Move.stay

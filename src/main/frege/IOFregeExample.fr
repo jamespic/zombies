@@ -1,0 +1,4 @@
+module example.IOFregeExample where
+  import zombie.FregeBindings
+  doTurn :: PlayerContext -> IO Action
+  doTurn context = IO.return Move.stay
