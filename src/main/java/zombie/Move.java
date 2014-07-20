@@ -1,7 +1,7 @@
 
 package zombie;
 
-import java.util.concurrent.ThreadLocalRandom;
+import org.apache.commons.math3.random.MersenneTwister;
 
 public enum Move implements Action {
     NORTHEAST(1, -1),
@@ -14,6 +14,7 @@ public enum Move implements Action {
     SOUTH(0, 1),
     SOUTHWEST(-1, 1);
     
+    private static final MersenneTwister rand = new MersenneTwister();
     public final int x;
     public final int y;
 
@@ -22,8 +23,8 @@ public enum Move implements Action {
         this.y = y;
     }
     
-    public static Move randomMove() {
-        return values()[ThreadLocalRandom.current().nextInt(values().length)];
+    public static synchronized Move randomMove() {
+        return values()[rand.nextInt(values().length)];
     }
     
     public static Move inDirection(int x, int y) {

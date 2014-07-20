@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.math3.random.MersenneTwister;
 
 public class Game {
     private static final boolean DEBUG = true;
@@ -56,6 +57,7 @@ public class Game {
     private Set<PlayerId> shootings = new HashSet<>();
     private Map<String, Integer> scores = new HashMap<>();
     private int gameClock = 0;
+    private final MersenneTwister rand = new MersenneTwister();
     
     public static void registerSystemPlayers() {
         PlayerRegistry.registerPlayer(Dead.DEADBODYNAME, Dead.DEADBODY);
@@ -81,8 +83,8 @@ public class Game {
     }
     
     private Point randomPoint() {
-        int x = ThreadLocalRandom.current().nextInt(boardSize);
-        int y = ThreadLocalRandom.current().nextInt(boardSize);
+        int x = rand.nextInt(boardSize);
+        int y = rand.nextInt(boardSize);
         return new Point(x, y);
     }
     
