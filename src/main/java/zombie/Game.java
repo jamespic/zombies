@@ -146,11 +146,11 @@ public class Game {
     public void doTurn() {
         spawnAZombie();
         doZombieAttacks();
+        doScoring();
         requestMoves();
         doShootings();
         doMovements();
         distributeBullets();
-        doScoring();
         gameClock++;
     }
     
@@ -355,7 +355,7 @@ public class Game {
 
     class PlayerInfo {
         public String name;
-        public final int id = playerIdCounter++;
+        public int id = playerIdCounter++;
         public Point newPosition;
         public Player player;
         public int bullets;
@@ -385,12 +385,14 @@ public class Game {
         
         public void die() {
             name = Dead.DEADBODYNAME;
+            id = playerIdCounter++; // New identity
             player = Dead.DEADBODY;
             newPosition = oldPosition; // Cancel planned move
         }
         
         public void turn() {
             name = Dead.ZOMBIENAME;
+            id = playerIdCounter++; // New identity
             player = Dead.ZOMBIE;
             bullets = 0; // Zombies lose all bullets on death
         }

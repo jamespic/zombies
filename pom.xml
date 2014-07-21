@@ -83,6 +83,16 @@
                 <version>1.0.5</version>
                 <executions>
                     <execution>
+                        <id>compile-bindings</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/frege-bindings</sourceDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>compile</id>
                         <phase>process-sources</phase>
                         <goals>
@@ -118,11 +128,11 @@
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
-						<phase>process-resources</phase>
-						<goals>
-						    <goal>add-source</goal>
-							<goal>compile</goal>
-						</goals>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
