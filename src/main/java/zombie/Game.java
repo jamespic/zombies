@@ -28,18 +28,19 @@ public class Game {
     private static final String[] COMPILED_PLAYERS = new String[] {
         "player.StandStill",
         "player.Gunner",
-        "example.ScalaExample"
+        "player.EmoWolfWithAGun"
+//        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
-        "/js-example.js",
-        "/py-example.py",
-        "/rb-example.rb",
-        "/clj-example.clj"
+//        "/js-example.js",
+//        "/py-example.py",
+//        "/rb-example.rb",
+//        "/clj-example.clj"
     };
     private static final String[] FREGE_PLAYERS = new String[] {
-        "example.PureFregeExample",
-        "example.IOFregeExample",
-        "example.ContinuationFregeExample"
+//        "example.PureFregeExample",
+//        "example.IOFregeExample",
+//        "example.ContinuationFregeExample"
     };
     private static final String[] COLORS = new String[] {
         "Red",
