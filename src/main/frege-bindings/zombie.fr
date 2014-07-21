@@ -27,3 +27,5 @@ package zombie.FregeBindings where
     pure native southeast zombie.Move.SOUTHEAST :: Move
     pure native south zombie.Move.SOUTH :: Move
     pure native southwest zombie.Move.SOUTHWEST :: Move
+
+  data Continue = Continue {result :: Action, andThen :: PlayerContext -> Continue}

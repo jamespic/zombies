@@ -1,0 +1,4 @@
+module example.ContinuationFregeExample where
+  import zombie.FregeBindings
+  doTurn :: PlayerContext -> Continue
+  doTurn context = Continue Move.stay doTurn
