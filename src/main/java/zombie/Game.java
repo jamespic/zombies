@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.random.MersenneTwister;
@@ -28,7 +28,9 @@ public class Game {
     private static final String[] COMPILED_PLAYERS = new String[] {
         "player.StandStill",
         "player.Gunner",
-        "player.EmoWolfWithAGun"
+        "player.EmoWolfWithAGun",
+        "player.GordonFreeman",
+        "player.HuddleWolf"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
@@ -57,7 +59,7 @@ public class Game {
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
     private Set<PlayerId> shootings = new HashSet<>();
-    private Map<String, Integer> scores = new HashMap<>();
+    private Map<String, Integer> scores = new TreeMap<>();
     private int gameClock = 0;
     private final MersenneTwister rand = new MersenneTwister();
     
