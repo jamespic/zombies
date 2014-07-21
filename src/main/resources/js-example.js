@@ -1,7 +1,6 @@
-with (Packages.zombie) {
-  PlayerRegistry.registerPlayer(
-    "js-example",
-    new Player({doTurn: function(context) {return Move.STAY}})
-  )
-}
+var zombie = Packages.zombie
+zombie.PlayerRegistry.registerPlayer(
+  "js-example",
+  new zombie.Player({doTurn: function(context) {return zombie.Move.STAY}})
+)
 
