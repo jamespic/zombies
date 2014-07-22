@@ -3,25 +3,18 @@ package zombie;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.awt.Point;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import static zombie.Constants.*;
 import static java.lang.Math.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+import java.text.DateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.util.ResizableDoubleArray;
+import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 public class Game {
     private static final boolean DEBUG = true;
@@ -428,8 +421,46 @@ public class Game {
         
         while(game.playersLeft()) game.doTurn();
         
-        for (Map.Entry<String, Integer> entry: game.getScores().entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        // Output scores
+        try (FileWriter gameLog = new FileWriter("game-output/game.log", true)) {
+            gameLog.append("#Run at " + DateFormat.getDateTimeInstance().format(new Date()) + "#\n");
+            for (Map.Entry<String, Integer> entry: game.getScores().entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+                gameLog.append(entry.getKey() + ": " + entry.getValue() + "\n");
+            }
+            gameLog.append('\n');
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            for (Map.Entry<String, Integer> entry: game.getScores().entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        }
+        
+        // Output aggregate scores for runs in log
+        try (BufferedReader gameLog = new BufferedReader(new FileReader("game-output/game.log"))) {
+            Map<String, ResizableDoubleArray> scores = new TreeMap<>();
+            String line;
+            while ((line = gameLog.readLine()) != null) {
+                if (line.contains(": ")) {
+                    String[] splitLine = line.split(": ");
+                    String name = splitLine[0];
+                    double score = Double.valueOf(splitLine[1]);
+                    if (scores.containsKey(name)) {
+                        scores.get(name).addElement(score);
+                    } else {
+                        scores.put(name, new ResizableDoubleArray(new double[] {score}));
+                    }
+                }
+            }
+            System.out.println();
+            System.out.println("Aggregate Scores");
+            for (Map.Entry<String, ResizableDoubleArray> entry: scores.entrySet()) {
+                Median median = new Median();
+                double medianScore = median.evaluate(entry.getValue().getElements());
+                System.out.println(entry.getKey() + ": " + medianScore);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
