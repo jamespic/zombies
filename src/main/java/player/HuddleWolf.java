@@ -15,6 +15,8 @@ public class HuddleWolf implements Player {
                         break;
                     case "DeadBody":
                         break;
+                    case "ZombieRightsActivist":
+                        return new Shoot(player);
                     case "Gunner":
                         return new Shoot(player);
                     case "Zombie" :
@@ -33,6 +35,7 @@ public class HuddleWolf implements Player {
                 if (playerAtLocation != null
                         && !(playerAtLocation.getName().equals("Zombie"))
                         && !(playerAtLocation.getName().equals("Gunner"))
+                        && !(playerAtLocation.getName().equals("ZombieRightsActivist"))
                         && !(playerAtLocation.equals(context.getId()))
                         && distance < bestDistance) {
                     bestDistance = distance;
