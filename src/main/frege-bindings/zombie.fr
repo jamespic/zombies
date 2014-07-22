@@ -27,5 +27,10 @@ package zombie.FregeBindings where
     pure native southeast zombie.Move.SOUTHEAST :: Move
     pure native south zombie.Move.SOUTH :: Move
     pure native southwest zombie.Move.SOUTHWEST :: Move
+    pure native inDirection zombie.Move.inDirection :: Int -> Int -> Move
+    
+  instance Eq PlayerId where
+    a == b = (a.getName == b.getName) && (a.getNumber == b.getNumber)
+    hashCode a = (hashCode a.getName) * 31 + (hashCode a.getNumber)
 
   data Continue = Continue {result :: Action, andThen :: PlayerContext -> Continue}
