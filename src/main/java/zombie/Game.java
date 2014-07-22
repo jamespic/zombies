@@ -31,7 +31,8 @@ public class Game {
         "player.EmoWolfWithAGun",
         "player.GordonFreeman",
         "player.HuddleWolf",
-        "player.ZombieRightsActivist"
+        "player.ZombieRightsActivist",
+        "player.ZombieHater"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
