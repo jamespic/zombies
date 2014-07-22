@@ -10,7 +10,7 @@ package zombie.FregeBindings where
     pure native getX :: PlayerContext -> Int
     pure native getY :: PlayerContext -> Int
     pure native getGameClock :: PlayerContext -> Int
-    pure native lookAround :: PlayerContext -> Int -> Int -> PlayerId
+    pure native lookAround :: PlayerContext -> Int -> Int -> Maybe PlayerId
 
   data Action = pure native zombie.Action
 

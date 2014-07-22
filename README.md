@@ -93,6 +93,21 @@ Communication between players is allowed.
 
 The winner is the entrant whose bot has the highest score in a test I will run on the 3rd of August 2014.
 
+##Results##
+
+On 21st July, the results were as follows:
+
+    Entrant         Round 1 Round 2 Round 3 Round 4 Round 5 Median
+    GordonFreeman   289     167     215     146     237     215
+    Gunner          227     136     182     131     182     182
+    StandStill      288     173     202     143     113     173
+    HuddleWolf      158     168     275     139     158     158
+    EmoWolfWithAGun 0       0       0       0       0       0
+
+The control program was run for 5 rounds, and the entries were ranked according to their median score.
+
+You can watch a run of the last battle [here][13]
+
 
   [1]: http://en.wikipedia.org/wiki/Torus#Topology
   [2]: https://github.com/jamespic/zombies/blob/master/src/main/java/zombie/PlayerContext.java
@@ -106,3 +121,4 @@ The winner is the entrant whose bot has the highest score in a test I will run o
   [10]: https://github.com/jamespic/zombies/blob/master/src/main/resources/clj-example.clj
   [11]: https://github.com/jamespic/zombies/blob/master/src/main/frege/PureFregeExample.fr
   [12]: https://github.com/jamespic/zombies/blob/master/src/main/frege/IOFregeExample.fr
+  [13]: http://jamespic.github.io/zombies/2014-07-21/0.html

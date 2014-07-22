@@ -24,7 +24,7 @@ public class HuddleWolf implements Player {
                 }
             }
         }
-        Move bestDirection = Move.STAY;
+        Move bestDirection = Move.NORTHEAST;
         int bestDistance = Integer.MAX_VALUE;
         for (int x = 0; x < VISION_WIDTH; x++) {
             for (int y = 0; y < VISION_WIDTH; y++) {
@@ -33,6 +33,7 @@ public class HuddleWolf implements Player {
                 if (playerAtLocation != null
                         && !(playerAtLocation.getName().equals("Zombie"))
                         && !(playerAtLocation.getName().equals("Gunner"))
+                        && !(playerAtLocation.equals(context.getId()))
                         && distance < bestDistance) {
                     bestDistance = distance;
                     bestDirection = Move.inDirection(x - CENTRE_OF_VISION, y -CENTRE_OF_VISION);
