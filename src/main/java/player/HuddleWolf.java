@@ -11,14 +11,8 @@ public class HuddleWolf implements Player {
         if (context.getBullets() > 0) {
             for (PlayerId player: context.shootablePlayers()) {
                 switch(player.getName()) {
-                    case "HuddleWolf":
-                        break;
-                    case "DeadBody":
-                        break;
                     case "ZombieRightsActivist":
-                        return new Shoot(player);
                     case "Gunner":
-                        return new Shoot(player);
                     case "Zombie" :
                         return new Shoot(player);
                     default:
