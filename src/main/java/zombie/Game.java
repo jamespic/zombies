@@ -170,10 +170,17 @@ public class Game {
     }
     
     private void requestMoves() {
+        PlayerId[][] board = new PlayerId[boardSize][boardSize];
+        for (PlayerInfo player: players) {
+            int x = player.oldPosition.x;
+            int y = player.oldPosition.y;
+            board[x][y] = player.playerId();
+        }
+        
         Collections.shuffle(players); // Randomise play order
         for (PlayerInfo playerInfo: players) {
             try {
-                PlayerContext context = playerInfo.generateContext();
+                PlayerContext context = playerInfo.generateContext(board);
                 Set<PlayerId> shootablePlayers = context.shootablePlayers();
                 Action action = playerInfo.player.doTurn(context);
                 if (action instanceof Move) {
@@ -404,12 +411,14 @@ public class Game {
             return new PlayerId(name, id);
         }
         
-        public PlayerContext generateContext() {
+        public PlayerContext generateContext(PlayerId[][] board) {
             PlayerId[][] playField = new PlayerId[VISION_WIDTH][VISION_WIDTH];
-            for (PlayerInfo otherPlayer: players) {
-                if (distance(otherPlayer.oldPosition, oldPosition) <= VISION_RANGE) {
-                    Point offset = diffWrapping(otherPlayer.oldPosition, oldPosition);
-                    playField[CENTRE_OF_VISION + offset.x][CENTRE_OF_VISION + offset.y] = otherPlayer.playerId();
+            for (int xOff = -VISION_RANGE; xOff <= VISION_RANGE; xOff++) {
+                for (int yOff = -VISION_RANGE; yOff <= VISION_RANGE; yOff++) {
+                    int xInBoard = (boardSize + oldPosition.x + xOff) % boardSize;
+                    int yInBoard = (boardSize + oldPosition.y + yOff) % boardSize;
+                    playField[xOff + CENTRE_OF_VISION][yOff + CENTRE_OF_VISION] =
+                            board[xInBoard][yInBoard];
                 }
             }
             return new PlayerContext(playerId(), bullets, gameClock, playField, oldPosition.x, oldPosition.y);
