@@ -109,6 +109,7 @@ public class Coward implements Player {
             case "EmoWolfWithAGun":
             case "HuddleWolf":
             case "ThePriest":
+            case "Shotguneer":
                 return false;
             default:
                 return true;

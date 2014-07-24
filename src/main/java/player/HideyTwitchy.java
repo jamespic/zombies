@@ -2,18 +2,22 @@ package player;
 
 import static java.lang.Math.*;
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.Set;
 
 import zombie.*;
 import static zombie.Constants.*;
 
 public class HideyTwitchy implements Player {
 
+    private Set<Integer> lootedCorpseIds = new HashSet<Integer>();
+
     @Override
     public Action doTurn(PlayerContext context) {
-        Action action = Move.randomMove();
+        Action action = null;
 
         Point playerP = getClosestPlayerPoint(context);
-        Point corpseP = getClosestCorpsePoint(context);
+        Point corpseP = getClosestCorpsePoint(context); 
         Point enemyP = getClosestEnemyPoint(context);
 
         if (isWithinArea(playerP, Constants.SHOOT_RANGE, Constants.SHOOT_RANGE)) {
@@ -28,15 +32,25 @@ public class HideyTwitchy implements Player {
             action = getMoveAwayFromPoint(enemyP); //run!
         } else if (isWithinArea(corpseP, Constants.VISION_RANGE, Constants.VISION_RANGE)) {
             //corpse spotted within 8x8
-            if (context.getBullets() == 0) {
-                action = getMoveTowardsPoint(corpseP); //loot corpse!
-            }
+
+            int uniqueCorpseId = getPlayerIdAtPoint(context, corpseP).getNumber();
+            if (isWithinArea(corpseP, 1, 1)) {
+                //loot the corpse and get the heck away from it
+                lootedCorpseIds.add(uniqueCorpseId);
+                action = getMoveAwayFromPoint(corpseP);
+            } else if (context.getBullets() == 0 && !lootedCorpseIds.contains(uniqueCorpseId)) {
+                action = getMoveTowardsPoint(corpseP); //loot corpse if not looted!
+            } 
         } else {
             //randomly move
             action = Move.randomMove();
         }
 
         return action;
+    }
+
+    private PlayerId getPlayerIdAtPoint(PlayerContext context, Point p) {
+        return context.getPlayField()[(int) p.getX()][(int) p.getY()];
     }
 
     private Move getMoveTowardsPoint(Point p) {
@@ -55,7 +69,7 @@ public class HideyTwitchy implements Player {
     }
 
     private boolean isWithinArea(Point p, int x, int y) {
-        return p != null
+        return p != null 
                 && abs(CENTRE_OF_VISION - p.getX()) <= x
                 && abs(CENTRE_OF_VISION - p.getY()) <= y;
     }
