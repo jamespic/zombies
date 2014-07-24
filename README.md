@@ -95,16 +95,22 @@ The winner is the entrant whose bot has the highest score in a test I will run o
 
 ##Results##
 
-On 21st July, the results were as follows:
+On 23rd July, the results were as follows:
 
-    Entrant         Round 1 Round 2 Round 3 Round 4 Round 5 Median
-    GordonFreeman   289     167     215     146     237     215
-    Gunner          227     136     182     131     182     182
-    StandStill      288     173     202     143     113     173
-    HuddleWolf      158     168     275     139     158     158
-    EmoWolfWithAGun 0       0       0       0       0       0
+    Shotguneer: 936
+    GordonFreeman: 428
+    Coward: 405
+    HuddleWolf: 356
+    ThePriest: 298
+    StandStill: 196
+    HideyTwitchy: 142
+    ZombieHater: 38
+    ZombieRightsActivist: 25
+    Gunner: 19
+    EmoWolfWithAGun: 0
 
-The control program was run for 5 rounds, and the entries were ranked according to their median score.
+
+The control program was run for 11 rounds, and the entries were ranked according to their median score.
 
 You can watch a run of the last battle [here][13]
 
@@ -121,4 +127,4 @@ You can watch a run of the last battle [here][13]
   [10]: https://github.com/jamespic/zombies/blob/master/src/main/resources/clj-example.clj
   [11]: https://github.com/jamespic/zombies/blob/master/src/main/frege/PureFregeExample.fr
   [12]: https://github.com/jamespic/zombies/blob/master/src/main/frege/IOFregeExample.fr
-  [13]: http://jamespic.github.io/zombies/2014-07-21/0.html
+  [13]: http://jamespic.github.io/zombies/0.html
