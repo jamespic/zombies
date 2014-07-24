@@ -10,13 +10,8 @@ public class HuddleWolf implements Player {
     public Action doTurn(PlayerContext context) {
         if (context.getBullets() > 0) {
             for (PlayerId player: context.shootablePlayers()) {
-                switch(player.getName()) {
-                    case "ZombieRightsActivist":
-                    case "Gunner":
-                    case "Zombie" :
-                        return new Shoot(player);
-                    default:
-                        break;
+                if (isEnemy(player.getName())) {
+                    return new Shoot(player);
                 }
             }
         }
@@ -27,9 +22,7 @@ public class HuddleWolf implements Player {
                 int distance = max(abs(x - CENTRE_OF_VISION), abs(y - CENTRE_OF_VISION));
                 PlayerId playerAtLocation = context.getPlayField()[x][y];
                 if (playerAtLocation != null
-                        && !(playerAtLocation.getName().equals("Zombie"))
-                        && !(playerAtLocation.getName().equals("Gunner"))
-                        && !(playerAtLocation.getName().equals("ZombieRightsActivist"))
+                        && !(isEnemy(playerAtLocation.getName()))
                         && !(playerAtLocation.equals(context.getId()))
                         && distance < bestDistance) {
                     bestDistance = distance;
@@ -38,5 +31,17 @@ public class HuddleWolf implements Player {
             }
         }
         return bestDirection;
+    }
+
+    private boolean isEnemy(String name) {
+        switch(name) {
+            case "ZombieRightsActivist":
+            case "ZombieHater":
+            case "Gunner":
+            case "Zombie" :
+                return true;
+            default:
+                return false;
+        }
     }
 }

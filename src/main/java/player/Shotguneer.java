@@ -15,6 +15,8 @@ public class Shotguneer implements Player {
             for (PlayerId player: context.shootablePlayers()) {
                 switch(player.getName()) {
                     case "Gunner":
+                    case "ZombieRightsActivist":
+                    case "ZombieHater":
                         return new Shoot(player);
                     default:
                         break;
