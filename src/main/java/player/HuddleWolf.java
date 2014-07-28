@@ -37,6 +37,7 @@ public class HuddleWolf implements Player {
         switch(name) {
             case "ZombieRightsActivist":
             case "ZombieHater":
+            case "HideyTwitchy" :
             case "Gunner":
             case "Zombie" :
                 return true;
