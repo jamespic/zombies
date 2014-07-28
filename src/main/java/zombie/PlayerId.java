@@ -45,6 +45,12 @@ public class PlayerId {
     public int getNumber() {
         return number;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "PlayerId{" +
+                "name='" + name + '\'' +
+                ", number=" + number +
+                '}';
+    }
 }
