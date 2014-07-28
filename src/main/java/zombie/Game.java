@@ -42,6 +42,7 @@ public class Game {
 //        "example.PureFregeExample",
 //        "example.IOFregeExample",
 //        "example.ContinuationFregeExample"
+        "player.Cocoon"
     };
     private static final String[] COLORS = new String[] {
         "Red",
