@@ -6,8 +6,9 @@ import java.util.HashSet;
 import zombie.*;
 import static zombie.Constants.*;
 
-public class Coward implements Player {
+public class Fox implements Player {
 
+    private static int lastround = -1;
     private static final Set<PlayerId> killed = new HashSet<>();
     private static final Set<PlayerId> looted = new HashSet<>();
 
@@ -16,40 +17,61 @@ public class Coward implements Player {
 
         PlayerId[][] field = context.getPlayField();
 
-        // Panic and shoot
+        // Cleanup
+        if (context.getGameClock() > lastround) {
+            lastround = context.getGameClock();
+            killed.clear();
+        }
+
+        // Snipe
         if (context.getBullets() > 0) {
-            int distEnemy = VISION_WIDTH;
-            int distZombie = VISION_WIDTH;
+            int distEnemy = 1;
             PlayerId targetEnemy = null;
-            PlayerId targetZombie = null;
             for (int x = CENTRE_OF_VISION - SHOOT_RANGE; x <= CENTRE_OF_VISION + SHOOT_RANGE; x++) {
                 for (int y = CENTRE_OF_VISION - SHOOT_RANGE; y <= CENTRE_OF_VISION + SHOOT_RANGE; y++) {
                     PlayerId player = field[x][y];
                     if (player != null && !killed.contains(player)) {
                         int dist = getDistance(x, y);
-                        if (player.getName().equals("Zombie")) {
-                            if( dist < distZombie ) {
-                                distZombie = dist;
-                                targetZombie = player;
-                            }
-                        } else if (isEnemy(player.getName()) && dist <= distEnemy ) {
+                        if (!player.getName().equals("Zombie") && isEnemy(player.getName()) && dist >= distEnemy ) {
                             distEnemy = dist;
                             targetEnemy = field[x][y];
                         }
                     }
                 }
             }
-
-            if (targetZombie != null && distZombie <= 3) {
-                killed.add(targetZombie);
-                return new Shoot( targetZombie );
-            } else if (targetEnemy != null && distEnemy <= 5 ) {
+            if (targetEnemy != null) {
                 killed.add(targetEnemy);
                 return new Shoot( targetEnemy );
             }
         }
 
-        // Run away
+        // Check Foxhole
+        int foxhole = 0;
+        PlayerId target = null;
+
+        for( int x = -2; x <= 2; x++ ) {
+            for( int y = -2; y <= 2; y++ ) {
+                PlayerId player = field[CENTRE_OF_VISION+x][CENTRE_OF_VISION+y];
+                if (player != null && getDistance(CENTRE_OF_VISION+x,CENTRE_OF_VISION+y) == 2) {
+                    if (player.getName().equals("DeadBody") || player.getName().equals("Fox")) {
+                        foxhole++;
+                    }
+                    if( player.getName().equals("Zombie")) {
+                        target = player;
+                    }
+                }
+            }
+        }
+
+        if (context.getBullets() + foxhole >= 16) {
+            if (target!=null) {
+                return new Shoot( target );
+            } else {
+                return Move.STAY;
+            }
+        }
+
+        // Collect bullets
         int bestScore = -10000000;
         Move bestMove = Move.randomMove();
 
@@ -61,35 +83,20 @@ public class Coward implements Player {
                 }
                 if( center == null ) {
                     int thisScore = 0;
+
                     for( int xx = CENTRE_OF_VISION+x-VISION_RANGE+1; xx < CENTRE_OF_VISION+x+VISION_RANGE; xx++ ) {
                         for( int yy = CENTRE_OF_VISION+y-VISION_RANGE+1; yy < CENTRE_OF_VISION+y+VISION_RANGE; yy++ ) {
                             PlayerId player = field[xx][yy];
                             if( player != null) {
                                 int dist = getDistance(xx-x,yy-y);
 
-                                if( player.getName().equals("Coward")) { // Prefer lose groups
-                                    if( dist >= 3 && dist <= 6 ) {
-                                        thisScore += 32;
-                                    } else if( dist > 3 ) {
-                                        thisScore += 16;
-                                    }
-                                } else if( player.getName().equals("DeadBody")) { // Visit dead bodies on the route
+                                if( player.getName().equals("DeadBody")) {
                                     if( !looted.contains(player)) {
                                         thisScore += 32*(VISION_RANGE-dist);
                                     }
-                                } else if( player.getName().equals("Zombie")) { // Avoid zombies
-                                    if( dist <= 2 ) {
+                                } else if( player.getName().equals("Zombie")) {
+                                    if( dist < 3 ) {
                                         thisScore -= 10000;
-                                    } else if( dist <= 3 ) {
-                                        thisScore -= 1000;
-                                    } else if( dist <= 4 ) {
-                                        thisScore -= 100;
-                                    }
-                                } else if( isEnemy(player.getName())) { // Avoid strangers
-                                    if( dist == 7 ) {
-                                        thisScore -= 100;
-                                    } else if( dist <= 6 ) {
-                                        thisScore -= 1000;
                                     }
                                 }
                             }
@@ -108,14 +115,15 @@ public class Coward implements Player {
 
     private boolean isEnemy(String name) {
         switch (name) {
+            case "Fox":
             case "Coward":
             case "DeadBody":
             case "GordonFreeman":
             case "EmoWolfWithAGun":
             case "HuddleWolf":
             case "ThePriest":
+//            case "Shotguneer":
             case "Vortigaunt":
-            case "Fox":
                 return false;
             default:
                 return true;

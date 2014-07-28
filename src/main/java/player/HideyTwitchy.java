@@ -17,7 +17,7 @@ public class HideyTwitchy implements Player {
         Action action = null;
 
         Point playerP = getClosestPlayerPoint(context);
-        Point corpseP = getClosestCorpsePoint(context); 
+        Point corpseP = getClosestCorpsePoint(context);
         Point enemyP = getClosestEnemyPoint(context);
 
         if (isWithinArea(playerP, Constants.SHOOT_RANGE, Constants.SHOOT_RANGE)) {
@@ -40,7 +40,7 @@ public class HideyTwitchy implements Player {
                 action = getMoveAwayFromPoint(corpseP);
             } else if (context.getBullets() == 0 && !lootedCorpseIds.contains(uniqueCorpseId)) {
                 action = getMoveTowardsPoint(corpseP); //loot corpse if not looted!
-            } 
+            }
         } else {
             //randomly move
             action = Move.randomMove();
@@ -69,7 +69,7 @@ public class HideyTwitchy implements Player {
     }
 
     private boolean isWithinArea(Point p, int x, int y) {
-        return p != null 
+        return p != null
                 && abs(CENTRE_OF_VISION - p.getX()) <= x
                 && abs(CENTRE_OF_VISION - p.getY()) <= y;
     }
