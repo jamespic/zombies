@@ -17,6 +17,7 @@ public class HuddleWolf implements Player {
         }
         Move bestDirection = Move.NORTHEAST;
         int bestDistance = Integer.MAX_VALUE;
+        boolean foundACoward = false;
         for (int x = 0; x < VISION_WIDTH; x++) {
             for (int y = 0; y < VISION_WIDTH; y++) {
                 int distance = max(abs(x - CENTRE_OF_VISION), abs(y - CENTRE_OF_VISION));
@@ -24,7 +25,12 @@ public class HuddleWolf implements Player {
                 if (playerAtLocation != null
                         && !(isEnemy(playerAtLocation.getName()))
                         && !(playerAtLocation.equals(context.getId()))
-                        && distance < bestDistance) {
+                        && distance < bestDistance
+                        && (!foundACoward || playerAtLocation.getName().equals("Coward"))) {
+                    if (playerAtLocation.getName().equals("Coward"))
+                    {
+                        foundACoward = true;
+                    }
                     bestDistance = distance;
                     bestDirection = Move.inDirection(x - CENTRE_OF_VISION, y -CENTRE_OF_VISION);
                 }
@@ -37,6 +43,7 @@ public class HuddleWolf implements Player {
         switch(name) {
             case "ZombieRightsActivist":
             case "ZombieHater":
+            case "HideyTwitchy" :
             case "Gunner":
             case "Zombie" :
                 return true;

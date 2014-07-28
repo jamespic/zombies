@@ -12,7 +12,8 @@ package zombie.FregeBindings where
     pure native getGameClock :: PlayerContext -> Int
     pure native lookAround :: PlayerContext -> Int -> Int -> Maybe PlayerId
 
-  data Action = pure native zombie.Action
+  data Action = pure native zombie.Action where
+    pure native toString :: Action -> String
 
   data Shoot = pure native zombie.Shoot where
     pure native new :: PlayerId -> Shoot
@@ -28,9 +29,17 @@ package zombie.FregeBindings where
     pure native south zombie.Move.SOUTH :: Move
     pure native southwest zombie.Move.SOUTHWEST :: Move
     pure native inDirection zombie.Move.inDirection :: Int -> Int -> Move
-    
+
   instance Eq PlayerId where
     a == b = (a.getName == b.getName) && (a.getNumber == b.getNumber)
     hashCode a = (hashCode a.getName) * 31 + (hashCode a.getNumber)
 
   data Continue = Continue {result :: Action, andThen :: PlayerContext -> Continue}
+
+  pure native visionRange "zombie.Constants.VISION_RANGE" :: Int
+  pure native shootRange "zombie.Constants.SHOOT_RANGE" :: Int
+  pure native startingBullets "zombie.Constants.STARTING_BULLETS" :: Int
+  pure native visionWidth "zombie.Constants.VISION_WIDTH" :: Int
+  pure native centreOfVision "zombie.Constants.CENTRE_OF_VISION" :: Int
+  pure native playerDensity "zombie.Constants.PLAYER_DENSITY" :: Double
+  pure native playersPerSpecies "zombie.Constants.PLAYERS_PER_SPECIES" :: Int

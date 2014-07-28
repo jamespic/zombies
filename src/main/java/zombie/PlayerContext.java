@@ -58,7 +58,11 @@ public class PlayerContext {
     }
     
     public PlayerId lookAround(int xOffset, int yOffset) {
-        return playField[CENTRE_OF_VISION + xOffset][CENTRE_OF_VISION + yOffset];
+        try {
+            return playField[CENTRE_OF_VISION + xOffset][CENTRE_OF_VISION + yOffset];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            return null;
+        }
     }
     
 }

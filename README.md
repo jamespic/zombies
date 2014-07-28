@@ -95,20 +95,19 @@ The winner is the entrant whose bot has the highest score in a test I will run o
 
 ##Results##
 
-On 23rd July, the results were as follows:
+On 25th July, the results were as follows:
 
-    Shotguneer: 936
-    GordonFreeman: 428
-    Coward: 405
-    HuddleWolf: 356
-    ThePriest: 298
-    StandStill: 196
-    HideyTwitchy: 142
-    ZombieHater: 38
-    ZombieRightsActivist: 25
-    Gunner: 19
-    EmoWolfWithAGun: 0
-
+    Coward: 1446.0
+    Shotguneer: 648.0
+    GordonFreeman: 536.0
+    HuddleWolf: 365.0
+    ThePriest: 288.0
+    StandStill: 276.0
+    HideyTwitchy: 135.0
+    ZombieHater: 48.0
+    Gunner: 31.0
+    ZombieRightsActivist: 26.0
+    EmoWolfWithAGun: 0.0
 
 The control program was run for 11 rounds, and the entries were ranked according to their median score.
 
