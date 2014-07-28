@@ -56,7 +56,8 @@ public class Game {
         "HotPink",
         "Sienna"
     };
-    
+	
+    private static final String watchedPlayer = "Waller";
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
@@ -87,7 +88,17 @@ public class Game {
             PlayerRegistry.registerFregePlayer(className);
         }
     }
-    
+	
+    public void clearOutputDirectory() {
+		File dir = new File("game-output");
+		String[] allFiles = dir.list();
+		for (String file : allFiles) {
+			if (file.endsWith(".html")) {
+				new File("game-output" + "/" + file).delete();
+			}
+		}
+	}
+	
     private Point randomPoint() {
         int x = rand.nextInt(boardSize);
         int y = rand.nextInt(boardSize);
@@ -338,6 +349,26 @@ public class Game {
                             writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");
                         }
                     }
+					
+					if(watchedPlayer != null && !watchedPlayer.isEmpty()) {					
+						writer.append("  ");
+						for (PlayerInfo player: row) {
+							if (player == null) {
+								writer.append('.');
+							} else {						
+							
+								if(player.name.equals(watchedPlayer)) {									
+									String color = "white; background-color: black"; 
+									String title = player.name + ": " + player.bullets + " bullets";
+									char initial = player.name.charAt(0);
+									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");		
+								} else {
+									writer.append('.');
+								}                          
+							}
+						}
+					}
+					
                     writer.append("\n");
                 }
                 writer.append("</pre>\n");
@@ -434,7 +465,9 @@ public class Game {
         Game game = new Game();
         
         game.initializeBoard();
-        
+		
+        if(DEBUG) game.clearOutputDirectory();
+		
         while(game.playersLeft()) game.doTurn();
         
         // Output scores
