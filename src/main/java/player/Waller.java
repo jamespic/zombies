@@ -104,6 +104,7 @@ public class Waller implements Player {
 		
 		Action action;
 		
+
 		if(gameTurn < 1) {
 			action = ShootAgressivePlayers(field, bullets);
 			if(action != null) {                    
@@ -168,6 +169,7 @@ public class Waller implements Player {
 			// Move moveAction = findShortestPath(field, CurrentLocation, directions);
 			// return moveAction;
 			return Move.randomMove();
+
 		}
         return Move.STAY;   
     }
@@ -374,8 +376,9 @@ public class Waller implements Player {
         if(player == null)
             return false;
         switch (player.getName()) {           
-            case "DeadBody":  			
-			case "StandStill":			
+            case "DeadBody":  
+			case "ThePriest":
+			case "StandStill":
                 return true;
             default:
                 return false;

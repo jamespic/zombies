@@ -16,7 +16,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.util.ResizableDoubleArray;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
-public class Game {
+public class Game {	
     private static final boolean DEBUG = true;
     private static final String[] COMPILED_PLAYERS = new String[] {
         "player.StandStill",
@@ -30,9 +30,9 @@ public class Game {
         "player.Shotguneer",
         "player.Coward",
         "player.HideyTwitchy",
+        "player.Waller",
         "player.Vortigaunt",
-        "player.Fox",
-        "player.Waller"
+        "player.Fox"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
@@ -45,6 +45,7 @@ public class Game {
 //        "example.PureFregeExample",
 //        "example.IOFregeExample",
 //        "example.ContinuationFregeExample"
+          "player.Cocoon"
     };
     private static final String[] COLORS = new String[] {
         "Red",
@@ -56,8 +57,14 @@ public class Game {
         "HotPink",
         "Sienna"
     };
+<<<<<<< HEAD
 	
     private static final String watchedPlayer = "Waller";
+=======
+    
+	private static final String watchedPlayer = null;
+	
+
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
@@ -82,7 +89,7 @@ public class Game {
             PlayerRegistry.runJsr223Script(script);
         }
     }
-    
+	    
     public static void registerFregePlayers() {
         for (String className: FREGE_PLAYERS) {
             PlayerRegistry.registerFregePlayer(className);
@@ -98,7 +105,7 @@ public class Game {
 			}
 		}
 	}
-	
+
     private Point randomPoint() {
         int x = rand.nextInt(boardSize);
         int y = rand.nextInt(boardSize);
@@ -314,7 +321,7 @@ public class Game {
             PlayerInfo[][] board = new PlayerInfo[boardSize][boardSize];
             for (PlayerInfo player: players) {
                 board[player.newPosition.y][player.newPosition.x] = player;
-            }
+            }		
             Path outputFile = Paths.get("game-output", gameClock + ".html");
             try (Writer writer = new FileWriter(outputFile.toFile())) {
                 writer.append("<!DOCTYPE html>\n");
@@ -355,13 +362,13 @@ public class Game {
 						for (PlayerInfo player: row) {
 							if (player == null) {
 								writer.append('.');
-							} else {						
-							
+							} else {
 								if(player.name.equals(watchedPlayer)) {									
 									String color = "white; background-color: black"; 
 									String title = player.name + ": " + player.bullets + " bullets";
 									char initial = player.name.charAt(0);
-									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");		
+									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");	
+
 								} else {
 									writer.append('.');
 								}                          
@@ -369,6 +376,7 @@ public class Game {
 						}
 					}
 					
+
                     writer.append("\n");
                 }
                 writer.append("</pre>\n");
@@ -467,7 +475,7 @@ public class Game {
         game.initializeBoard();
 		
         if(DEBUG) game.clearOutputDirectory();
-		
+
         while(game.playersLeft()) game.doTurn();
         
         // Output scores

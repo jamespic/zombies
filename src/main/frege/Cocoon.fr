@@ -1,0 +1,137 @@
+module player.Cocoon where
+  import zombie.FregeBindings
+  import frege.data.TreeMap
+  import Data.List(sortBy)
+  import Data.Foldable(minimumBy, maximumBy)
+
+  instance Ord PlayerId where
+    a <=> b = case a.getName <=> b.getName of
+      Eq -> a.getNumber <=> b.getNumber
+      x -> x
+
+  instance Show Action where
+    show action = action.toString
+
+  -- Dijkstra's shortest path algorithm
+  data DijkstraNode = Green {d :: Int, pos :: (Int, Int)} | Red {pos :: (Int, Int)} | Yellow {d :: Int, pos :: (Int, Int)}
+  data DijkstraState = DijkstraState {board :: Tree (Int, Int) DijkstraNode, yellows :: TreeSet DijkstraNode}
+  derive Eq DijkstraNode
+  derive Ord DijkstraNode
+  derive Show DijkstraNode
+  derive Show DijkstraState
+
+  updateState :: Int -> DijkstraState -> (Int, Int) -> DijkstraState
+  updateState d (oldState@DijkstraState {board, yellows}) pos  = case (lookup board pos) of
+    Nothing -> oldState
+    Just Green {d, pos} -> oldState
+    Just Red {pos} -> let
+        newYellow = Yellow d pos
+        newYellows = insert yellows newYellow ()
+        newBoard = update board pos newYellow
+      in DijkstraState {board = newBoard, yellows = newYellows}
+    Just (oldYellow@Yellow {d = oldD, pos = oldPos})
+          | oldD <= d = oldState
+          | true = let
+              newYellow = Yellow d pos
+              newYellows = insert (delete yellows oldYellow) newYellow ()
+              newBoard = insert board pos newYellow
+            in DijkstraState {board = newBoard, yellows = newYellows}
+
+  neighbours :: (Int, Int) -> [(Int, Int)]
+  neighbours (x,y) = [(x1 + x, y1 + y) | x1 <- [-1 .. 1], y1 <- [-1 .. 1], x1 != 0 || y1 != 0]
+
+  findMove :: DijkstraState -> Maybe Move
+  findMove DijkstraState {board, yellows}
+     | null yellows = Nothing
+     | true = let
+         tip@Yellow{d, pos} = head (keys yellows)
+         rest = delete yellows tip
+         newBoard = insert board pos (Green d pos)
+         intermediateState = DijkstraState {board = newBoard, yellows = rest}
+       in if tip.pos == (0, 0)
+          then case minimum [node | pos <- neighbours (0,0), node <- lookup board pos] of
+            Green {d, pos = (x,y)} -> Just (Move.inDirection x y)
+            _ -> Nothing
+          else findMove (foldl (updateState (d + 1)) intermediateState (neighbours pos))
+
+  insertRed :: Tree (Int, Int) DijkstraNode -> (Int, Int) -> Tree (Int, Int) DijkstraNode
+  insertRed board pos = insert board pos (Red {pos})
+
+  v = [-visionRange .. visionRange]
+  v2 = sortBy (comparing dist) [(x,y) | x <- v, y <- v]
+
+  shootable = sortBy (comparing dist) [(x, y) | x <- [-shootRange .. shootRange], y <- [-shootRange .. shootRange]]
+
+  moveTo :: (Int, Int) -> PlayerContext -> Maybe Move
+  moveTo pos ctx =
+    let
+      board = foldl insertRed Tree.empty ([p | p@(x, y) <- v2,
+                                                  ctx.lookAround x y == Nothing] ++ [(0,0)])
+      yellows = Tree.insert Tree.empty (Yellow {d = 0, pos}) ()
+    in findMove (DijkstraState {board, yellows})
+
+  dist :: (Int, Int) -> Int
+  dist (x,y) = max (abs x) (abs y)
+
+  findBullets :: PlayerContext -> TreeSet PlayerId -> Maybe Action
+  findBullets ctx emptyBodies =
+    if (ctx.getBullets > 0) then Nothing
+    else
+      let
+        viableBodies = [pos | pos@(x,y) <- v2, pid <- (ctx.lookAround x y), pid.getName == "DeadBody", lookup emptyBodies pid == Nothing]
+      in case viableBodies of
+         target : _ -> moveTo target ctx
+         _ -> Nothing
+
+  isThreat :: String -> (Int, Int) -> Bool
+  isThreat name pos = case (name, pos) of
+    ("Zombie", pos) | dist pos <= 3 -> true
+    ("HideyTwitchy", _) -> true
+    ("ZombieHater", _) -> true
+    ("ZombieRightsActivist", _) -> true
+    ("Gunner", _) -> true
+    _ -> false
+
+  shootThreats :: PlayerContext -> Maybe Action
+  shootThreats ctx =
+    let
+      threats = [pid | pos@(x, y) <- shootable, pid <- ctx.lookAround x y, isThreat (pid.getName) pos]
+    in case threats of
+      target:_ | ctx.getBullets == 0 = Nothing
+               | true = Just (Shoot.new target)
+      _ -> Nothing
+
+  coziness :: PlayerContext -> (Int, Int) -> Int
+  coziness ctx (x,y) =
+    let
+      wallScores = [3 - dist (xx, yy) | xx <- [-2 .. 2],
+                                        yy <- [-2 .. 2],
+                                        xx != 0 || yy != 0,
+                                        pid <- ctx.lookAround (x + xx) (y + yy),
+                                        pid.getName == "DeadBody"]
+    in 3 * sum wallScores - dist (x,y)
+
+  gotoCoziest :: PlayerContext -> Maybe Action
+  gotoCoziest ctx =
+    let
+      emptySquares = [pos | pos@(x, y) <- v2, ctx.lookAround x y == Nothing] ++ [(0,0)]
+      coziest = maximumBy (comparing (coziness ctx)) emptySquares
+    in if null emptySquares then Nothing
+       else moveTo coziest ctx
+
+  updateEmptyBodies :: PlayerContext -> TreeSet PlayerId -> TreeSet PlayerId
+  updateEmptyBodies ctx !current =
+    let
+      nearbyBodies = [pid | (x,y) <- neighbours (0,0), pid <- ctx.lookAround x y, pid.getName == "DeadBody"]
+    in foldl (\x -> \y -> insert x y ()) current nearbyBodies
+
+  doStep :: TreeSet PlayerId -> PlayerContext -> Continue
+  doStep bodies ctx =
+    let
+      emptyBodies = updateEmptyBodies ctx bodies
+      plan = (findBullets ctx emptyBodies) `mplus` (shootThreats ctx) `mplus` (gotoCoziest ctx)
+    in case plan of
+      Just action -> Continue {result = action, andThen = doStep emptyBodies}
+      Nothing -> Continue {result = Move.stay, andThen = doStep emptyBodies}
+
+  doTurn = doStep Tree.empty
