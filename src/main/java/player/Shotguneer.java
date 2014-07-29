@@ -18,8 +18,8 @@ public class Shotguneer implements Player {
                     case "ZombieRightsActivist":
                     case "HideyTwitchy":
                     case "ZombieHater":
-                    case "Fox":
-                    case "Coward":
+                        //case "Fox":
+                        //case "Coward":
                         return new Shoot(player);
                     default:
                         break;
@@ -36,22 +36,22 @@ public class Shotguneer implements Player {
                         zombies=true;
                         TargetZombie=playerAtLocation;
                     }
-                    if (playerAtLocation != null && playerAtLocation.getName().equals("Shotguneer") != true && distance < 2 &&zombies==false) {
-                        TargetZombie=playerAtLocation;
-                        sdistance=distance;
-                    }
+                    //if (playerAtLocation != null && playerAtLocation.getName().equals("Priest") && distance < 2 &&zombies==false) {
+                    //TargetZombie=playerAtLocation;
+                    //sdistance=distance;
+                    //}
                 }}
             if (zombies || sdistance<3) {
                 return new Shoot(TargetZombie);
             }
         }
 
-        if (context.getPlayField()[CENTRE_OF_VISION+1][CENTRE_OF_VISION+1]==null){
-            return Move.SOUTHEAST;
-        } else if (context.getPlayField()[CENTRE_OF_VISION][CENTRE_OF_VISION+1]==null){
-            return Move.SOUTH;
+        if (context.getPlayField()[CENTRE_OF_VISION-1][CENTRE_OF_VISION-1]==null){
+            return Move.NORTHWEST;
+        } else if (context.getPlayField()[CENTRE_OF_VISION][CENTRE_OF_VISION-1]==null){
+            return Move.NORTH;
         } else {
-            return Move.EAST;
+            return Move.WEST;
         }
 
     }

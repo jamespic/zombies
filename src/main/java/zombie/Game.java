@@ -32,7 +32,9 @@ public class Game {
         "player.HideyTwitchy",
         "player.Waller",
         "player.Vortigaunt",
-        "player.Fox"
+        "player.Fox",
+        "player.Sokie",
+        "player.SuperCoward"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
