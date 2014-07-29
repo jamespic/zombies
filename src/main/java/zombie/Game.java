@@ -42,6 +42,7 @@ public class Game {
 //        "/py-example.py",
 //        "/rb-example.rb",
 //        "/clj-example.clj"
+        "/bee.py"
     };
     private static final String[] FREGE_PLAYERS = new String[] {
 //        "example.PureFregeExample",
