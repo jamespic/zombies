@@ -30,7 +30,9 @@ public class Game {
         "player.Shotguneer",
         "player.Coward",
         "player.HideyTwitchy",
-        "player.Waller"
+        "player.Waller",
+        "player.Vortigaunt",
+        "player.Fox"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
@@ -43,6 +45,7 @@ public class Game {
 //        "example.PureFregeExample",
 //        "example.IOFregeExample",
 //        "example.ContinuationFregeExample"
+          "player.Cocoon"
     };
     private static final String[] COLORS = new String[] {
         "Red",
@@ -55,7 +58,7 @@ public class Game {
         "Sienna"
     };
     
-	private static final String watchedPlayer = "Waller";
+	private static final String watchedPlayer = null;
 	
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
