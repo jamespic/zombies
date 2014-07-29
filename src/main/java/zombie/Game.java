@@ -57,14 +57,8 @@ public class Game {
         "HotPink",
         "Sienna"
     };
-<<<<<<< HEAD
-	
-    private static final String watchedPlayer = "Waller";
-=======
-    
-	private static final String watchedPlayer = null;
-	
 
+    private static final String watchedPlayer = "Waller";
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
