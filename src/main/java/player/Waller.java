@@ -23,7 +23,7 @@ public class Waller implements Player {
 	private static int _lastGameTurn = -1;
 	
 	// DEBUG
-	private static boolean _DEBUG = false;
+	private static boolean _DEBUG = true;
 	private static int agressiveKills;
 	private static int zombieKills;
 	private static int wallsBuilt;
@@ -95,8 +95,7 @@ public class Waller implements Player {
 		int gameTurn = context.getGameClock();	
 		
 		if(gameTurn != _lastGameTurn){
-			_lastGameTurn = gameTurn;
-			if(_DEBUG) System.out.println("Starting Round: "+(gameTurn));			
+			_lastGameTurn = gameTurn;				
 		}
 		
         PlayerId[][] field = context.getPlayField();         
@@ -104,41 +103,45 @@ public class Waller implements Player {
 		
 		Action action;
 		
-		if(gameTurn < 1) {
+		// 1) Handle immediate threats to life, have to be dealt before anything else
+		action = AssessThreats(field, bullets);
+        if(action != null) return action;
+       		
+		if(gameTurn < 6) {
+			//action = EvadeAgressivePlayers(field);
+			//if(action != null) return action; 
+			
 			action = ShootAgressivePlayers(field, bullets);
-			if(action != null) {                    
-				return action;                      
-			}
+			if(action != null) return action;             
 		}
-		
-        action = AssessThreats(field, bullets);
-        if(action != null)
-        {           
-            return action;
-        }
+		    
 		
         int currentWallCount = countNumberOfSurroundingWalls(field, CENTRE_OF_VISION, CENTRE_OF_VISION);
 
         switch(currentWallCount) {  
-            case 8:				
+            case 8:		
+				action = ShootAgressivePlayers(field, bullets);
+				if(action != null) return action; 
+				return Move.STAY; // no more moving					
             case 7:
 				action = ShootAgressivePlayers(field, bullets);
-                if(action != null)                    
-                    return action; 
-                return Move.STAY; // no more moving
+				if(action != null) return action; 
+				
+				action = ExpandWall(field, bullets);
+                if(action != null) return action; 	                  
+                    
+                return Move.STAY; // no more moving		
             case 6:
             case 5:
             case 4:
-            case 3:                   
-                action = ExpandWall(field, bullets);
-                if(action != null) {                    
-                    return action;                      
-                }
-                break;
-                // Try to complete the wall
+				action = ExpandWall(field, bullets);
+                if(action != null) return action;          
+            case 3:  
 			case 2: 
 			case 1: 
             default:
+				 
+                // Try to complete the wall
                 break;
         }                       
 
@@ -149,15 +152,17 @@ public class Waller implements Player {
 
             if(moveAction == Move.STAY) {
                 action = ExpandWall(field, bullets);
-                if(action != null)
-                    return action;  
+                if(action != null) return action;  
+				
+				action = ShootAgressivePlayers(field, bullets);
+				if(action != null) return action; 
             }          
 			
 			return moveAction;
         }
 		
 		// Move in a direction where there are the most walls
-		if(currentWallCount < 2){
+		if(currentWallCount < 3){
 				
 			// Set<Point> directions = new HashSet<Point>();
 			// directions.add(North);
@@ -167,18 +172,43 @@ public class Waller implements Player {
 			
 			// Move moveAction = findShortestPath(field, CurrentLocation, directions);
 			// return moveAction;
-			return Move.randomMove();
+			//return Move.randomMove();
 		}
-        return Move.STAY;   
+		
+		action = ShootAgressivePlayers(field, bullets);
+		if(action != null) return action; 
+		return Move.STAY;
     }
+		
+	private Action EvadeAgressivePlayers(PlayerId[][] field, int width) {		
+		int sumX = 0;
+		int sumY = 0;	
+	
+		int aggressors = 0;
+		for(int x = CENTRE_OF_VISION - width; x <= CENTRE_OF_VISION + width; x++) {
+			for(int y = CENTRE_OF_VISION - width; y <= CENTRE_OF_VISION + width; y++) {
+				PlayerId player = field[x][y];
+				if(isAgressive(player)) {     		
+					sumX += CENTRE_OF_VISION - x;
+					sumY += CENTRE_OF_VISION - y;	
+					aggressors++;					
+				}
+			}
+		}
+		
+		if(aggressors == 0)
+			return null;
+			
+		return Move.inDirection(sumX, sumY);     
+	}
 		
 	private Action ShootAgressivePlayers(PlayerId[][] field, int bullets) {
 		if(bullets > 0) {
             for(int x = CENTRE_OF_VISION - SHOOT_RANGE; x <= CENTRE_OF_VISION + SHOOT_RANGE; x++) {
                 for(int y = CENTRE_OF_VISION - SHOOT_RANGE; y <= CENTRE_OF_VISION + SHOOT_RANGE; y++) {
                     PlayerId player = field[x][y];
-                    if(isAgressive(player) && shouldShoot(player)) {     
-						if(_DEBUG) System.out.println("Killing Aggressive: "+(++agressiveKills));								
+                    if(isAgressive(player) && shouldShoot(player)) {     					
+						if(_DEBUG) System.out.println("["+_lastGameTurn+"] Killing Aggressive: "+(++agressiveKills));								
                         return new Shoot(player);
                     }
                 }
@@ -193,7 +223,7 @@ public class Waller implements Player {
                 for(int y = CENTRE_OF_VISION - 1; y <= CENTRE_OF_VISION + 1; y++) {
                     PlayerId player = field[x][y];
                     if(isEnemy(player) && shouldShoot(player)) {    
-						if(_DEBUG) System.out.println("Expanding Wall: "+(++wallsBuilt));			
+						if(_DEBUG) System.out.println("["+_lastGameTurn+"] Expanding Wall: "+(++wallsBuilt));			
                         return new Shoot(player);
                     }
                 }
@@ -203,16 +233,18 @@ public class Waller implements Player {
     }
 
 	private boolean shouldShoot(PlayerId player) {
-		if(shooting.contains(player)){
-			return false;
-		}
-		shooting.add(player);
-		return true;
+		return shooting.add(player);		
+	}
+	
+	private boolean canShoot(PlayerId player) {
+		return !shooting.contains(player);		
 	}
 		
     private Action AssessThreats(PlayerId[][] field, int bullets){          
         if(bullets > 0) {
            
+		    PlayerId bestZombie = null;
+			int smallestDistance = MaximumDistanceToShootZombie+1;
 			// Check for zombies approaching
             for(int x = CENTRE_OF_VISION - MaximumDistanceToShootZombie; x <= CENTRE_OF_VISION + MaximumDistanceToShootZombie; x++) {
                 for(int y = CENTRE_OF_VISION - MaximumDistanceToShootZombie; y <= CENTRE_OF_VISION + MaximumDistanceToShootZombie; y++) {
@@ -221,16 +253,20 @@ public class Waller implements Player {
                         LinkedList<Point> path = findShortestPath_astar(field, new Point(x,y), CurrentLocation);
                         if(path.isEmpty()) 
                             continue;                       
-                        if(path.size() <= MaximumDistanceToShootZombie && shouldShoot(zombie)) {							
-							if(_DEBUG) System.out.println("Shooting Zombie: "+(++zombieKills));				
-							return new Shoot(zombie);							                           
+                        if(path.size() <= MaximumDistanceToShootZombie && canShoot(zombie) && path.size() < smallestDistance) {		
+							bestZombie = zombie;
+							smallestDistance = path.size();												                           
                         }           
                     }               
                 }       
             }
-        }       
-		
-		// Check for aggressive player moving near
+			
+			if(bestZombie != null && shouldShoot(bestZombie)) {			
+				if(_DEBUG) System.out.println("["+_lastGameTurn+"] Shooting Zombie: "+(++zombieKills));				
+				return new Shoot(bestZombie);		
+			}
+        }   
+			
 
         return null;        
     }
@@ -276,8 +312,9 @@ public class Waller implements Player {
             closedSet.add(currentPoint);            
 
             // Add neighbouring squares
-			for(Point pointToAdd : currentPoint.getAdjacentPoints(field)){         
-				if(isWall(pointToAdd.Player) || closedSet.contains(pointToAdd)) 
+			for(Point pointToAdd : currentPoint.getAdjacentPoints(field)){    
+						
+				if(isWall(pointToAdd.Player) || (pointToAdd.Player != null && !pointToAdd.SameLocation(finalPoint)) || closedSet.contains(pointToAdd)) 
 					continue;
 
 				int gScore = gScores.get(currentPoint) + 1; // distance should always be one (may change depending on environment)  
@@ -375,7 +412,7 @@ public class Waller implements Player {
             return false;
         switch (player.getName()) {           
             case "DeadBody":  			
-			case "StandStill":			
+			case "StandStill":
                 return true;
             default:
                 return false;
@@ -402,7 +439,9 @@ public class Waller implements Player {
             case "HideyTwitchy":   
 			case "ZombieHater":
 			case "Gunner":
-			case "ZombieRightsActivist":			
+			case "ZombieRightsActivist":	
+			case "Fox":
+			case "Coward":
                 return true;
             default:
                 return false;
