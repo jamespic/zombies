@@ -1,107 +1,100 @@
 from zombie import Player, Move, Shoot, PlayerRegistry, Constants
 
-import math
-
+friends = ['Bee','Waller','DeadBody','ThePriest','StandStill','Vortigaunt','EmoWolfWithAGun']
 MID = Constants.CENTRE_OF_VISION
+BOARDSIZE = 1
 sign = lambda x: (1, -1)[x<0]
+isZombie = lambda player: player and player.getName() is "Zombie"
+isEnemy = lambda player: player and player.getName() not in friends
+isWall = lambda player: player and (player.getName() is "DeadBody" or player.getName() is "StandStill")
+distance = lambda x1,y1,x2,y2: max(distance1d(x1,x2), distance1d(y1,y2))
+distance1d = lambda x1,x2: min(abs(x1-x2), BOARDSIZE - abs(x1-x2))
 Bees = {}
 Shot = set()
-MoveTo = set()
+MoveTo = set()  
 
-def isEnemy(player):
-    if not player:
-        return False
-    return {
-        'Bee': False,
-        'DeadBody': False,       
-        'StandStill': False}.get(player.getName(), True)
-
-def isZombie(player):
-    if not player:
-        return False
-    return player.getName() is "Zombie"
-
-def distance(x1, x2, y1, y2):
-    return math.max(math.abs(x1 - x2), math.abs(y1 - y2))
+def getDirection(x1, x2):  
+    diff = x1 - x2  
+    if abs(diff) > (BOARDSIZE // 2):
+        return sign(diff)
+    return -sign(diff)
 
 class Bee(Player):  
     Queen = None
-    QueenBeeX = QueenBeeY = X = Y = ID = 0
+    QueenBeePosition = None
+    X = Y = ID = 0
     LastTurn = -1   
 
-    def doTurn(self, context):  
+    def doTurn(self, context): 
+        global BOARDSIZE
         self.ID = context.getId().getNumber()
         self.X = context.getX()
-        self.Y = context.getY()
-        turn = context.getGameClock()       
-        if turn is not Bee.LastTurn:
-            Bee.LastTurn = turn
-            MoveTo.clear()
-        Bees[self.ID] = turn # Report In
-        self.setQueenBee(turn)                  
+        self.Y = context.getY() 
+        BOARDSIZE = context.getBoardSize()    
+        self.setQueenBee(context.getGameClock())                    
         action = self.sting(context)
         if action:
             return action
         return self.moveToQueenBee(context)     
 
     def setQueenBee(self, turn):
-        if Bee.Queen not in Bees:
-            # Long live the queen!
+        if turn != Bee.LastTurn:
+            Bee.LastTurn = turn     
+            MoveTo.clear() # Clear the move set on new turn
+        Bees[self.ID] = turn # Report In        
+        if not Bee.Queen or (Bee.Queen and Bees[Bee.Queen] < turn - 1):
             Bee.Queen = self.ID
-            Bee.QueenBeeX = self.X
-            Bee.QueenBeeY = self.Y
-        else:
-            queenTurn = Bees[Bee.Queen]
-            if queenTurn < turn - 1:
-                # The queen is dead!
-                Bee.Queen = self.ID
-                Bee.QueenBeeX = self.X
-                Bee.QueenBeeY = self.Y
+            Bee.QueenBeePosition = (self.X, self.Y)     
 
     def moveToQueenBee(self, context):
-        if self.ID == Bee.Queen:
+        if self.ID == Bee.Queen:           
             return Move.STAY
-        field = context.getPlayField()
 
-        deltaX = sign(Bee.QueenBeeX - self.X)
-        deltaY = sign(Bee.QueenBeeY - self.Y)       
-        x = MID + deltaX;
-        y = MID + deltaY;
-        if not field[x][y]:
-            point = (self.X+deltaX,self.Y+deltaY)
-            if point not in MoveTo:
-                MoveTo.add(point)
-                return Move.inDirection(deltaX,deltaY)  
-        return Move.randomMove()
+        dist = distance(Bee.QueenBeePosition[0], Bee.QueenBeePosition[1], self.X, self.Y)
+        if dist < 4:
+            return Move.randomMove()
 
-    def sting(self, context):
-        bullets = context.getBullets()
-        if not bullets:
-            return          
-        players = context.shootablePlayers()
-        if not players:
-            return
+        signX = getDirection(self.X, Bee.QueenBeePosition[0])      
+        signY = getDirection(self.Y, Bee.QueenBeePosition[1])      
+        walls = 0
         field = context.getPlayField()
-        bestZombie = None
-        bestDist = 100;
-        for x in range(MID - 3, MID + 3):
-            for y in range(MID - 3, MID + 3):
-                zombie = field[x][y]
-                if zombie and isZombie(zombie) and zombie not in Shot:
+        for (deltaX, deltaY) in [(signX,signY),(signX,0),(0,signY),(signX,-signY),(-signX,signY)]:
+            player = field[MID + deltaX][MID + deltaY]
+            if isWall(player):
+                walls += 1
+            if not player:               
+                point = frozenset([self.X+deltaX,self.Y+deltaY])            
+                if point not in MoveTo:
+                    MoveTo.add(point)                   
+                    return Move.inDirection(deltaX,deltaY)
+        if walls > 2:
+            return Move.randomMove()
+        return Move.STAY
+
+    def sting(self, context):       
+        if not context.getBullets():
+            return      
+        field = context.getPlayField()
+        closestZombie,closestPlayer = None,None
+        closestZombieDist,bestDist = 3,3   
+        for x in range(MID - 5, MID + 5):
+            for y in range(MID - 5, MID + 5):
+                player = field[x][y]
+                if player and player not in Shot:
                     dist = distance(MID,MID,x,y)
-                    if dist < bestDist:
+                    if isZombie(player) and dist < closestZombieDist:   
+                        closestZombieDist = dist
+                        closestZombie = player
+                    if isEnemy(player) and dist < bestDist:  
                         bestDist = dist
-                        bestZombie = zombie
+                        closestPlayer = player
 
-        if bestZombie:
-            Shot.add(zombie)
-            return Shoot(zombie)        
+        if closestZombie:
+            Shot.add(closestZombie)
+            return Shoot(closestZombie)        
 
-        for player in players:          
-            if isEnemy(player) and player not in Shot:
-                Shot.add(player)
-                return Shoot(player)
-
-
+        if closestPlayer:
+            Shot.add(closestPlayer)
+            return Shoot(closestPlayer)        
 
 PlayerRegistry.registerPlayer("Bee", Bee())

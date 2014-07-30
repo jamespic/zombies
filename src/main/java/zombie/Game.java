@@ -322,6 +322,17 @@ public class Game {
                 writer.append("  <head>\n");
                 writer.append("    <title>Game Stage " + gameClock + "</title>\n");
                 writer.append("  </head>\n");
+				writer.append("  <script>\n");
+				writer.append("  document.onkeydown = function(evt) {\n");
+				writer.append("    evt = evt || window.event;\n");
+				writer.append("    switch (evt.keyCode) {\n");
+				writer.append("      case 37:\n");
+				writer.append("        document.location.href = \""+(gameClock - 1)+".html\";break;\n");
+				writer.append("      case 39:\n");
+				writer.append("        document.location.href = \""+(gameClock + 1)+".html\";break;\n");
+				writer.append("    }\n");
+				writer.append("  };\n");
+				writer.append("  </script>\n");
                 writer.append("  <body>\n");
                 if (gameClock > 0) {
                     writer.append("<a href=\"" + (gameClock - 1) + ".html\">Prev</a>\n");
