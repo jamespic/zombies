@@ -20,6 +20,7 @@ public class Game {
     private static final boolean DEBUG = true;
     private static final String[] COMPILED_PLAYERS = new String[] {
         "player.StandStill",
+		"player.MoveRandomly",
         "player.Gunner",
         "player.EmoWolfWithAGun",
         "player.GordonFreeman",
@@ -30,14 +31,14 @@ public class Game {
         "player.Shotguneer",
         "player.Coward",
         "player.HideyTwitchy",
-        "player.Waller",
+        "player.Waller",		
         "player.Vortigaunt",
         "player.Fox"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
 //        "/js-example.js",
-//        "/py-example.py",
+		  "/Bee.py"
 //        "/rb-example.rb",
 //        "/clj-example.clj"
     };
@@ -58,7 +59,11 @@ public class Game {
         "Sienna"
     };
 
-    private static final String watchedPlayer = "Waller";
+	private static final String[] watchedPlayers = new String[] {
+		"Bee",
+		"Waller"	
+	};
+  
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
@@ -351,18 +356,25 @@ public class Game {
                         }
                     }
 					
-					if(watchedPlayer != null && !watchedPlayer.isEmpty()) {					
+					if(watchedPlayers != null) {					
 						writer.append("  ");
 						for (PlayerInfo player: row) {
 							if (player == null) {
 								writer.append('.');
 							} else {
-								if(player.name.equals(watchedPlayer)) {									
+								boolean contains = false;
+								for(String name : watchedPlayers) {
+									if(name.equals(player.name))
+									{
+										contains = true;
+										break;
+									}
+								}
+								if(contains) {																
 									String color = "white; background-color: black"; 
 									String title = player.name + ": " + player.bullets + " bullets";
 									char initial = player.name.charAt(0);
 									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");	
-
 								} else {
 									writer.append('.');
 								}                          
