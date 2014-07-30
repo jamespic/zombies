@@ -18,8 +18,10 @@ public class Shotguneer implements Player {
                     case "ZombieRightsActivist":
                     case "HideyTwitchy":
                     case "ZombieHater":
-                        //case "Fox":
-                        //case "Coward":
+                    case "Waller":
+                    case "Bee":
+                    //case "Fox":
+                    //case "Coward":
                         return new Shoot(player);
                     default:
                         break;
@@ -28,26 +30,26 @@ public class Shotguneer implements Player {
             boolean zombies=false;
             PlayerId TargetZombie = context.getId();
             for (int x = -3; x < +4; x++) {
-                for (int y = -3; y < +4; y++) {
-                    double distance = sqrt(pow(x,2)+pow(y,2));
-                    PlayerId playerAtLocation = context.getPlayField()[x + CENTRE_OF_VISION][y + CENTRE_OF_VISION];
-                    if (playerAtLocation != null && playerAtLocation.getName().equals("Zombie") && (distance < sdistance ||zombies==false)) {
-                        sdistance = distance;
-                        zombies=true;
-                        TargetZombie=playerAtLocation;
-                    }
-                    //if (playerAtLocation != null && playerAtLocation.getName().equals("Priest") && distance < 2 &&zombies==false) {
+            for (int y = -3; y < +4; y++) {
+                double distance = sqrt(pow(x,2)+pow(y,2));
+                PlayerId playerAtLocation = context.getPlayField()[x + CENTRE_OF_VISION][y + CENTRE_OF_VISION];
+                if (playerAtLocation != null && playerAtLocation.getName().equals("Zombie") && (distance < sdistance ||zombies==false)) {
+                    sdistance = distance;
+                    zombies=true;
+                    TargetZombie=playerAtLocation;
+                }
+                //if (playerAtLocation != null && playerAtLocation.getName().equals("Priest") && distance < 2 &&zombies==false) {
                     //TargetZombie=playerAtLocation;
                     //sdistance=distance;
-                    //}
-                }}
+                //}
+            }}
             if (zombies || sdistance<3) {
                 return new Shoot(TargetZombie);
             }
         }
 
         if (context.getPlayField()[CENTRE_OF_VISION-1][CENTRE_OF_VISION-1]==null){
-            return Move.NORTHWEST;
+            return Move.NORTHWEST;  
         } else if (context.getPlayField()[CENTRE_OF_VISION][CENTRE_OF_VISION-1]==null){
             return Move.NORTH;
         } else {

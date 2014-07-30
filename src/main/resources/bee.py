@@ -47,7 +47,7 @@ class Bee(Player):
             Bee.QueenBeePosition = (self.X, self.Y)     
 
     def moveToQueenBee(self, context):
-        if self.ID == Bee.Queen:           
+        if self.ID == Bee.Queen:
             return Move.randomMove()
 
         dist = distance(Bee.QueenBeePosition[0], Bee.QueenBeePosition[1], self.X, self.Y)
@@ -71,7 +71,8 @@ class Bee(Player):
             return Move.randomMove()
         return Move.STAY
 
-    def sting(self, context):       
+    def sting(self, context):      
+
         if context.getBullets() < 1:
             return      
         field = context.getPlayField()
@@ -85,7 +86,7 @@ class Bee(Player):
                     if isZombie(player) and dist < closestZombieDist:   
                         closestZombieDist = dist
                         closestZombie = player
-                    elif isEnemy(player) and dist < bestDist:  
+                    elif isEnemy(player) and dist < bestDist: 
                         bestDist = dist
                         closestPlayer = player
 

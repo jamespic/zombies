@@ -61,6 +61,7 @@ Only one instance (in the Java sense of the word) will be created for each entry
         PlayerId getId() // Id of the current player instance
         int getX() // Your current x co-ordinate
         int getY() // Your current y co-ordinate
+        int getBoardSize() // The size of the current playing field
         Set<PlayerId> shootablePlayers() // A helper function that identifies players in range.
     }
 
@@ -95,19 +96,27 @@ The winner is the entrant whose bot has the highest score in a test I will run o
 
 ##Results##
 
-On 25th July, the results were as follows:
+On 30th July, the results were as follows:
 
-    Coward: 1446.0
-    Shotguneer: 648.0
-    GordonFreeman: 536.0
-    HuddleWolf: 365.0
-    ThePriest: 288.0
-    StandStill: 276.0
-    HideyTwitchy: 135.0
-    ZombieHater: 48.0
-    Gunner: 31.0
-    ZombieRightsActivist: 26.0
-    EmoWolfWithAGun: 0.0
+    Coward: 2936
+    Fox: 2629
+    Waller: 774
+    GordonFreeman: 729
+    HuddleWolf: 677
+    Sokie: 632
+    ThePriest: 535
+    Cocoon: 494
+    StandStill: 448
+    Vortigaunt: 384
+    Bee: 348
+    Shotguneer: 302
+    SuperCoward: 261
+    HideyTwitchy: 93
+    Gunner: 74
+    ZombieRightsActivist: 66
+    ZombieHater: 20
+    EmoWolfWithAGun: 0
+
 
 The control program was run for 11 rounds, and the entries were ranked according to their median score.
 
