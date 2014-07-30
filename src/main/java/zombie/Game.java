@@ -121,11 +121,6 @@ public class Game {
         return new Point(diffWrapping(b.x, a.x), diffWrapping(b.y, a.y));
     }
     
-    private int distance(Point b, Point a) {
-        Point diff = diffWrapping(b, a);
-        return max(abs(diff.x), abs(diff.y));
-    }
-    
     private Point findUnoccupiedSpace() {
         outer: while (true) {
             Point p = randomPoint();
@@ -460,7 +455,7 @@ public class Game {
                             board[xInBoard][yInBoard];
                 }
             }
-            return new PlayerContext(playerId(), bullets, gameClock, playField, oldPosition.x, oldPosition.y);
+            return new PlayerContext(playerId(), bullets, gameClock, playField, oldPosition.x, oldPosition.y, boardSize);
         }
     }
     
