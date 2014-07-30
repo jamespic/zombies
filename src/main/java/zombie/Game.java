@@ -19,28 +19,28 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 public class Game {	
     private static final boolean DEBUG = true;
     private static final String[] COMPILED_PLAYERS = new String[] {
-        // "player.StandStill",
-		// "player.MoveRandomly",
-        // "player.Gunner",
-        // "player.EmoWolfWithAGun",
-        // "player.GordonFreeman",
-        // "player.HuddleWolf",
-        // "player.ZombieRightsActivist",
-        // "player.ZombieHater",
-        // "player.ThePriest",
-        // "player.Shotguneer",
-        // "player.Coward",
-        // "player.HideyTwitchy",
+        "player.StandStill",
+		"player.MoveRandomly",
+        "player.Gunner",
+        "player.EmoWolfWithAGun",
+        "player.GordonFreeman",
+        "player.HuddleWolf",
+        "player.ZombieRightsActivist",
+        "player.ZombieHater",
+        "player.ThePriest",
+        "player.Shotguneer",
+        "player.Coward",
+        "player.HideyTwitchy",
         "player.Waller",		
-        // "player.Vortigaunt",
-        // "player.Fox",
-        // "player.Sokie",
-        // "player.SuperCoward"
+        "player.Vortigaunt",
+        "player.Fox",
+        "player.Sokie",
+        "player.SuperCoward"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
 //        "/js-example.js",
-		  "/Bee.py"
+		  "/bee.py"
 //        "/rb-example.rb",
 //        "/clj-example.clj"
     };
@@ -325,6 +325,17 @@ public class Game {
                 writer.append("  <head>\n");
                 writer.append("    <title>Game Stage " + gameClock + "</title>\n");
                 writer.append("  </head>\n");
+				writer.append("  <script>\n");
+				writer.append("  document.onkeydown = function(evt) {\n");
+				writer.append("    evt = evt || window.event;\n");
+				writer.append("    switch (evt.keyCode) {\n");
+				writer.append("      case 37:\n");
+				writer.append("        document.location.href = \""+(gameClock - 1)+".html\"; return false;\n");
+				writer.append("      case 39:\n");
+				writer.append("        document.location.href = \""+(gameClock + 1)+".html\"; return false;\n");
+				writer.append("    }\n");
+				writer.append("  };\n");
+				writer.append("  </script>\n");
                 writer.append("  <body>\n");
                 if (gameClock > 0) {
                     writer.append("<a href=\"" + (gameClock - 1) + ".html\">Prev</a>\n");
