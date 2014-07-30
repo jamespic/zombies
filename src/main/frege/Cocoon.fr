@@ -120,13 +120,13 @@ module player.Cocoon where
        else moveTo coziest ctx
 
   updateEmptyBodies :: PlayerContext -> TreeSet PlayerId -> TreeSet PlayerId
-  updateEmptyBodies ctx !current =
+  updateEmptyBodies ctx current =
     let
       nearbyBodies = [pid | (x,y) <- neighbours (0,0), pid <- ctx.lookAround x y, pid.getName == "DeadBody"]
     in foldl (\x -> \y -> insert x y ()) current nearbyBodies
 
   doStep :: TreeSet PlayerId -> PlayerContext -> Continue
-  doStep bodies ctx =
+  doStep !bodies ctx =
     let
       emptyBodies = updateEmptyBodies ctx bodies
       plan = (findBullets ctx emptyBodies) `mplus` (shootThreats ctx) `mplus` (gotoCoziest ctx)

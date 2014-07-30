@@ -9,6 +9,7 @@ package zombie.FregeBindings where
     pure native getBullets :: PlayerContext -> Int
     pure native getX :: PlayerContext -> Int
     pure native getY :: PlayerContext -> Int
+    pure native getBoardSize :: PlayerContext -> Int
     pure native getGameClock :: PlayerContext -> Int
     pure native lookAround :: PlayerContext -> Int -> Int -> Maybe PlayerId
 

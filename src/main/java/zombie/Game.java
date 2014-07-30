@@ -33,7 +33,9 @@ public class Game {
         "player.HideyTwitchy",
         "player.Waller",		
         "player.Vortigaunt",
-        "player.Fox"
+        "player.Fox",
+        "player.Sokie",
+        "player.SuperCoward"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
@@ -120,11 +122,6 @@ public class Game {
     
     private Point diffWrapping(Point b, Point a) {
         return new Point(diffWrapping(b.x, a.x), diffWrapping(b.y, a.y));
-    }
-    
-    private int distance(Point b, Point a) {
-        Point diff = diffWrapping(b, a);
-        return max(abs(diff.x), abs(diff.y));
     }
     
     private Point findUnoccupiedSpace() {
@@ -469,7 +466,7 @@ public class Game {
                             board[xInBoard][yInBoard];
                 }
             }
-            return new PlayerContext(playerId(), bullets, gameClock, playField, oldPosition.x, oldPosition.y);
+            return new PlayerContext(playerId(), bullets, gameClock, playField, oldPosition.x, oldPosition.y, boardSize);
         }
     }
     

@@ -28,54 +28,55 @@ public class Waller implements Player {
 	private static int zombieKills;
 	private static int wallsBuilt;
 	////////
-	
+
     private final class Point{
         public int X;
         public int Y;
-		public PlayerId Player;
+        public PlayerId Player;
 
         public Point(int x, int y) {
             X = x;
             Y = y;
         }
-		
-		public Point(int x, int y, PlayerId player) {
+
+        public Point(int x, int y, PlayerId player) {
             X = x;
             Y = y;
-			Player = player;
+            Player = player;
         }
 
         public boolean SameLocation(Point otherPoint) {
             return X == otherPoint.X && Y == otherPoint.Y;
         }
-		
-		public List<Point> getAdjacentPoints(PlayerId[][] field) {
-			List<Point> points = new ArrayList<Point>();
-			for(int x = X - 1; x <= X + 1; x++) {
+
+        public List<Point> getAdjacentPoints(PlayerId[][] field) {
+            List<Point> points = new ArrayList<Point>();
+            for(int x = X - 1; x <= X + 1; x++) {
                 for(int y = Y - 1; y <= Y + 1; y++) { 
-					if(x == X && y == Y)
-						continue;
-					Point pointToAdd = new Point(x, y);                 
-                    if(pointToAdd.isValid()) {			
-						pointToAdd.Player = field[x][y];
-						points.add(pointToAdd);
-					}
-				}
-			}					
-			return points;
-		}
-				
+                    if(x == X && y == Y)
+                        continue;
+                    Point pointToAdd = new Point(x, y);                 
+                    if(pointToAdd.isValid()) {
+                        pointToAdd.Player = field[x][y];
+                        points.add(pointToAdd);
+                    }
+                }
+            }                   
+            return points;
+        }
+
+
         public int GetDistance(Point point) {
             return Math.max(Math.abs(X - point.X), Math.abs(Y - point.Y));
         }
-		
-		private boolean isValid() {	
-			return X >= 0 && X < VISION_WIDTH && Y >= 0 && Y < VISION_WIDTH;
-		}
+
+        private boolean isValid() { 
+            return X >= 0 && X < VISION_WIDTH && Y >= 0 && Y < VISION_WIDTH;
+        }
 
         @Override
         public int hashCode() {
-			return (X*100) + Y;          
+			return (X*100) + Y;  
         }
 
         @Override
@@ -148,28 +149,28 @@ public class Waller implements Player {
 
             if(moveAction != Move.STAY) {
                return moveAction;
-            } 
+            }
         }		
 
 		action = ExpandWall(field, bullets, 2);
         if(action != null) return action; 	                  
 		return Move.STAY;
     }
-		
-	private Action ShootAgressivePlayers(PlayerId[][] field, int bullets) {
-		if(bullets > 0) {
+
+    private Action ShootAgressivePlayers(PlayerId[][] field, int bullets) {
+        if(bullets > 0) {
             for(int x = CENTRE_OF_VISION - SHOOT_RANGE; x <= CENTRE_OF_VISION + SHOOT_RANGE; x++) {
                 for(int y = CENTRE_OF_VISION - SHOOT_RANGE; y <= CENTRE_OF_VISION + SHOOT_RANGE; y++) {
                     PlayerId player = field[x][y];
                     if(isAgressive(player) && shouldShoot(player)) {     					
-						if(_DEBUG) System.out.println("["+_lastGameTurn+"] Killing Aggressive: "+(++agressiveKills));								
+						if(_DEBUG) System.out.println("["+_lastGameTurn+"] Killing Aggressive: "+(++agressiveKills));	
                         return new Shoot(player);
                     }
                 }
             }
         }
         return null;
-	}
+    }
 
     private Action ExpandWall(PlayerId[][] field, int bullets, int distance) {
         if(bullets > 0) {
@@ -223,6 +224,7 @@ public class Waller implements Player {
 		
 		// We should flee		
 		return null;				        
+
     }
 
     // Implementation of the A* path finding algorithm
@@ -284,7 +286,7 @@ public class Waller implements Player {
 					gScores.put(pointToAdd, gScore);
 					cameFrom.put(pointToAdd, currentPoint);                     
 				}
-			}            
+			}  
         }
 
         return foundPath;   
@@ -314,7 +316,7 @@ public class Waller implements Player {
 		
         return Move.inDirection(pointToMoveTo.X - startingPoint.X, pointToMoveTo.Y - startingPoint.Y);          
     }
-	
+
 	private boolean isMovableTo(PlayerId[][] field, int x, int y) {
 		if(field[x][y] != null)
 			return false;
@@ -387,9 +389,10 @@ public class Waller implements Player {
 				walls++;					
 			}            
         }
+
         return walls;
     }
-  
+
     private static boolean isZombie(PlayerId player) {
         return player != null && player.getName().equals("Zombie");
     }
@@ -413,14 +416,14 @@ public class Waller implements Player {
         switch (player.getName()) {  
             case "Waller":
             case "DeadBody":       
-			case "StandStill":			
+			case "StandStill":	
                 return false;
             default:
                 return true;
         }
     }
-	
-	private static boolean isAgressive(PlayerId player) {
+
+    private static boolean isAgressive(PlayerId player) {
         if(player == null)
             return false;
         switch (player.getName()) {  
@@ -469,3 +472,4 @@ public class Waller implements Player {
         return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
     }
 }
+
