@@ -3,6 +3,7 @@ from zombie import Player, Move, Shoot, PlayerRegistry, Constants
 import math
 
 MID = Constants.CENTRE_OF_VISION
+BOARDSIZE = 1
 sign = lambda x: (1, -1)[x<0]
 Bees = {}
 Shot = set()
@@ -33,6 +34,7 @@ class Bee(Player):
         self.ID = context.getId().getNumber()
         self.X = context.getX()
         self.Y = context.getY()
+		BOARDSIZE = context.getBoardSize()
         turn = context.getGameClock()       
         if turn is not Bee.LastTurn:
             Bee.LastTurn = turn
@@ -62,7 +64,13 @@ class Bee(Player):
         if self.ID == Bee.Queen:
             return Move.STAY
         field = context.getPlayField()
-
+		
+		distX = Bee.QueenBeeX - self.X
+		distY = Bee.QueenBeeY - self.Y
+		if abs(distX) > BOARDSIZE / 2:
+			flipX = True
+			
+		
         deltaX = sign(Bee.QueenBeeX - self.X)
         deltaY = sign(Bee.QueenBeeY - self.Y)       
         x = MID + deltaX;

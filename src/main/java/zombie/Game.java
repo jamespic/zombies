@@ -19,23 +19,23 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 public class Game {	
     private static final boolean DEBUG = true;
     private static final String[] COMPILED_PLAYERS = new String[] {
-        "player.StandStill",
-		"player.MoveRandomly",
-        "player.Gunner",
-        "player.EmoWolfWithAGun",
-        "player.GordonFreeman",
-        "player.HuddleWolf",
-        "player.ZombieRightsActivist",
-        "player.ZombieHater",
-        "player.ThePriest",
-        "player.Shotguneer",
-        "player.Coward",
-        "player.HideyTwitchy",
+        // "player.StandStill",
+		// "player.MoveRandomly",
+        // "player.Gunner",
+        // "player.EmoWolfWithAGun",
+        // "player.GordonFreeman",
+        // "player.HuddleWolf",
+        // "player.ZombieRightsActivist",
+        // "player.ZombieHater",
+        // "player.ThePriest",
+        // "player.Shotguneer",
+        // "player.Coward",
+        // "player.HideyTwitchy",
         "player.Waller",		
-        "player.Vortigaunt",
-        "player.Fox",
-        "player.Sokie",
-        "player.SuperCoward"
+        // "player.Vortigaunt",
+        // "player.Fox",
+        // "player.Sokie",
+        // "player.SuperCoward"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
