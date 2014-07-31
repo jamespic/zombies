@@ -25,7 +25,7 @@ public class Waller implements Player {
 	private static int _lastGameTurn = -1;
 	
 	// DEBUG
-	private static boolean _DEBUG = true;
+	private static boolean _DEBUG = false;
 	private static int agressiveKills;
 	private static int zombieKills;
 	private static int wallsBuilt;

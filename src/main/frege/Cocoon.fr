@@ -40,6 +40,8 @@ module player.Cocoon where
   neighbours :: (Int, Int) -> [(Int, Int)]
   neighbours (x,y) = [(x1 + x, y1 + y) | x1 <- [-1 .. 1], y1 <- [-1 .. 1], x1 != 0 || y1 != 0]
 
+  moveRegion = [(x, y) | x <- [-1 .. 1], y <- [-1 .. 1]]
+
   findMove :: DijkstraState -> Maybe Move
   findMove DijkstraState {board, yellows}
      | null yellows = Nothing
@@ -48,14 +50,23 @@ module player.Cocoon where
          rest = delete yellows tip
          newBoard = insert board pos (Green d pos)
          intermediateState = DijkstraState {board = newBoard, yellows = rest}
+         neighbourhood = [node | pos <- moveRegion , node <- lookup board pos]
        in if tip.pos == (0, 0)
-          then case minimum [node | pos <- neighbours (0,0), node <- lookup board pos] of
+          then case minimum neighbourhood of
+            _ | null neighbourhood = Nothing
             Green {d, pos = (x,y)} -> Just (Move.inDirection x y)
             _ -> Nothing
-          else findMove (foldl (updateState (d + 1)) intermediateState (neighbours pos))
+          else findMove (fold (updateState (d + 1)) intermediateState (neighbours pos))
 
   insertRed :: Tree (Int, Int) DijkstraNode -> (Int, Int) -> Tree (Int, Int) DijkstraNode
   insertRed board pos = insert board pos (Red {pos})
+
+  removeZombieTerritory :: PlayerContext -> Tree (Int, Int) DijkstraNode -> Tree (Int, Int) DijkstraNode
+  removeZombieTerritory ctx board =
+    let
+      zombies = [pos | pos@(x,y) <- v2, pid <- ctx.lookAround x y, pid.getName == "Zombie"]
+      zombieTerritory = [(x + xx, y + yy) | (x,y) <- zombies, xx <- [-2..2], yy <- [-2..2]]
+    in fold Tree.delete board zombieTerritory
 
   v = [-visionRange .. visionRange]
   v2 = sortBy (comparing dist) [(x,y) | x <- v, y <- v]
@@ -65,8 +76,9 @@ module player.Cocoon where
   moveTo :: (Int, Int) -> PlayerContext -> Maybe Move
   moveTo pos ctx =
     let
-      board = foldl insertRed Tree.empty ([p | p@(x, y) <- v2,
+      rawBoard = fold insertRed Tree.empty ([p | p@(x, y) <- v2,
                                                   ctx.lookAround x y == Nothing] ++ [(0,0)])
+      board = removeZombieTerritory ctx rawBoard
       yellows = Tree.insert Tree.empty (Yellow {d = 0, pos}) ()
     in findMove (DijkstraState {board, yellows})
 
@@ -85,7 +97,7 @@ module player.Cocoon where
 
   isThreat :: String -> (Int, Int) -> Bool
   isThreat name pos = case (name, pos) of
-    ("Zombie", pos) | dist pos <= 3 -> true
+    ("Zombie", pos) | dist pos <= 2 -> true
     ("HideyTwitchy", _) -> true
     ("ZombieHater", _) -> true
     ("ZombieRightsActivist", _) -> true
@@ -123,7 +135,7 @@ module player.Cocoon where
   updateEmptyBodies ctx current =
     let
       nearbyBodies = [pid | (x,y) <- neighbours (0,0), pid <- ctx.lookAround x y, pid.getName == "DeadBody"]
-    in foldl (\x -> \y -> insert x y ()) current nearbyBodies
+    in fold (\x -> \y -> insert x y ()) current nearbyBodies
 
   doStep :: TreeSet PlayerId -> PlayerContext -> Continue
   doStep !bodies ctx =

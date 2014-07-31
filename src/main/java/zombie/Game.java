@@ -61,10 +61,7 @@ public class Game {
         "Sienna"
     };
 
-	private static final String[] watchedPlayers = new String[] {
-		"Bee",
-		"Waller"	
-	};
+	private static final String[] watchedPlayers = null;
   
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
