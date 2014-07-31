@@ -122,8 +122,10 @@ public class Fox implements Player {
             case "EmoWolfWithAGun":
             case "HuddleWolf":
             case "ThePriest":
-//            case "Shotguneer":
+            case "Shotguneer":
             case "Vortigaunt":
+            case "Cocoon":
+            case "SuperCoward":
                 return false;
             default:
                 return true;

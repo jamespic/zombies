@@ -40,7 +40,8 @@ public class Game {
     };
     private static final String[] JSR223_PLAYERS = new String[] {
 //        "/js-example.js",
-		  "/bee.py"
+		  "/bee.py",
+          "/john-nash.js"
 //        "/rb-example.rb",
 //        "/clj-example.clj"
     };

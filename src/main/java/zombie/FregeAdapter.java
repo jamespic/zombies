@@ -5,7 +5,6 @@ import frege.runtime.Delayed;
 import frege.runtime.Lambda;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
-import org.python.tests.props.PropShadow;
 
 public class FregeAdapter implements Player {
     private static final String METHOD_NAME = "doTurn";

@@ -27,11 +27,11 @@ class Bee(Player):
 
     def doTurn(self, context): 
         global BOARDSIZE
-        self.ID = context.getId().getNumber()
-        self.X = context.getX()
-        self.Y = context.getY() 
-        BOARDSIZE = context.getBoardSize()    
-        self.setQueenBee(context.getGameClock())                    
+        self.ID = context.id.number
+        self.X = context.x
+        self.Y = context.y
+        BOARDSIZE = context.boardSize  
+        self.setQueenBee(context.gameClock)                    
         action = self.sting(context)
         if action:
             return action
@@ -57,7 +57,7 @@ class Bee(Player):
         signX = getDirection(self.X, Bee.QueenBeePosition[0])      
         signY = getDirection(self.Y, Bee.QueenBeePosition[1])      
         walls = 0
-        field = context.getPlayField()
+        field = context.playField
         for (deltaX, deltaY) in [(signX,signY),(signX,0),(0,signY),(signX,-signY),(-signX,signY)]:
             player = field[MID + deltaX][MID + deltaY]
             if isWall(player):
@@ -73,9 +73,9 @@ class Bee(Player):
 
     def sting(self, context):      
 
-        if context.getBullets() < 1:
+        if context.bullets < 1:
             return      
-        field = context.getPlayField()
+        field = context.playField
         closestZombie,closestPlayer = None,None
         closestZombieDist,bestDist = 3,5   
         for x in range(MID - 5, MID + 5):
