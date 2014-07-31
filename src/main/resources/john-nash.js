@@ -23,7 +23,8 @@ var chumps = mkSet(
                 "ZombieHater",
                 "ZombieRightsActivist",
                 "Bee",
-                "Zombie"
+                "Zombie",
+                "SuperCoward"
               )
 
 function dist(x, y) {
@@ -71,6 +72,7 @@ function JohnNash() {
             if (!(field[Constants.CENTRE_OF_VISION + tryMove.x][Constants.CENTRE_OF_VISION + tryMove.y])) {
                 return tryMove
             } else {
+                // If your path is blocked, take a random move
                 return Move.randomMove()
             }
         }
