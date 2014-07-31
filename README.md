@@ -96,29 +96,31 @@ The winner is the entrant whose bot has the highest score in a test I will run o
 
 ##Results##
 
-On 30th July, the results were as follows:
+On 31st July, the results were as follows:
 
-    Coward: 2936
-    Fox: 2629
-    Waller: 774
-    GordonFreeman: 729
-    HuddleWolf: 677
-    Sokie: 632
-    ThePriest: 535
-    Cocoon: 494
-    StandStill: 448
-    Vortigaunt: 384
-    Bee: 348
-    Shotguneer: 302
-    SuperCoward: 261
-    HideyTwitchy: 93
-    Gunner: 74
-    ZombieRightsActivist: 66
-    ZombieHater: 20
+    Fox: 3273
+    Coward: 3174
+    Cocoon: 2212
+    Shotguneer: 2112
+    HuddleWolf: 1018
+    Sokie: 856
+    GordonFreeman: 775
+    ThePriest: 585
+    Vortigaunt: 541
+    SuperCoward: 500
+    StandStill: 430
+    JohnNash: 326
+    MoveRandomly: 132
+    Waller: 124
+    HideyTwitchy: 31
+    Bee: 46
+    ZombieHater: 19
+    ZombieRightsActivist: 19
+    Gunner: 20
     EmoWolfWithAGun: 0
 
 
-The control program was run for 11 rounds, and the entries were ranked according to their median score.
+The control program was run for 9 rounds, and the entries were ranked according to their median score.
 
 You can watch a run of the last battle [here][13]
 
