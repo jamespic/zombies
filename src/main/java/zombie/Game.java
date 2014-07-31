@@ -20,6 +20,7 @@ public class Game {
     private static final boolean DEBUG = true;
     private static final String[] COMPILED_PLAYERS = new String[] {
         "player.StandStill",
+		"player.MoveRandomly",
         "player.Gunner",
         "player.EmoWolfWithAGun",
         "player.GordonFreeman",
@@ -30,7 +31,7 @@ public class Game {
         "player.Shotguneer",
         "player.Coward",
         "player.HideyTwitchy",
-        "player.Waller",
+        "player.Waller",		
         "player.Vortigaunt",
         "player.Fox",
         "player.Sokie",
@@ -39,10 +40,9 @@ public class Game {
     };
     private static final String[] JSR223_PLAYERS = new String[] {
 //        "/js-example.js",
-//        "/py-example.py",
+		  "/bee.py"
 //        "/rb-example.rb",
 //        "/clj-example.clj"
-        "/bee.py"
     };
     private static final String[] FREGE_PLAYERS = new String[] {
 //        "example.PureFregeExample",
@@ -60,9 +60,12 @@ public class Game {
         "HotPink",
         "Sienna"
     };
-    
-	private static final String watchedPlayer = null;
-	
+
+	private static final String[] watchedPlayers = new String[] {
+		"Bee",
+		"Waller"	
+	};
+  
     private int boardSize;
     private List<PlayerInfo> players = new ArrayList<>();
     private int playerIdCounter = 0;
@@ -92,9 +95,9 @@ public class Game {
         for (String className: FREGE_PLAYERS) {
             PlayerRegistry.registerFregePlayer(className);
         }
-    }	
-		
-	public void clearOutputDirectory() {
+    }
+	
+    public void clearOutputDirectory() {
 		File dir = new File("game-output");
 		String[] allFiles = dir.list();
 		for (String file : allFiles) {
@@ -103,7 +106,7 @@ public class Game {
 			}
 		}
 	}
-    
+
     private Point randomPoint() {
         int x = rand.nextInt(boardSize);
         int y = rand.nextInt(boardSize);
@@ -327,9 +330,9 @@ public class Game {
 				writer.append("    evt = evt || window.event;\n");
 				writer.append("    switch (evt.keyCode) {\n");
 				writer.append("      case 37:\n");
-				writer.append("        document.location.href = \""+(gameClock - 1)+".html\";break;\n");
+				writer.append("        document.location.href = \""+(gameClock - 1)+".html\"; return false;\n");
 				writer.append("      case 39:\n");
-				writer.append("        document.location.href = \""+(gameClock + 1)+".html\";break;\n");
+				writer.append("        document.location.href = \""+(gameClock + 1)+".html\"; return false;\n");
 				writer.append("    }\n");
 				writer.append("  };\n");
 				writer.append("  </script>\n");
@@ -361,17 +364,25 @@ public class Game {
                         }
                     }
 					
-					if(watchedPlayer != null && !watchedPlayer.isEmpty()) {					
+					if(watchedPlayers != null) {					
 						writer.append("  ");
 						for (PlayerInfo player: row) {
 							if (player == null) {
 								writer.append('.');
 							} else {
-								if(player.name.equals(watchedPlayer)) {									
+								boolean contains = false;
+								for(String name : watchedPlayers) {
+									if(name.equals(player.name))
+									{
+										contains = true;
+										break;
+									}
+								}
+								if(contains) {																
 									String color = "white; background-color: black"; 
 									String title = player.name + ": " + player.bullets + " bullets";
 									char initial = player.name.charAt(0);
-									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");
+									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");	
 								} else {
 									writer.append('.');
 								}                          
@@ -379,7 +390,7 @@ public class Game {
 						}
 					}
 					
-					
+
                     writer.append("\n");
                 }
                 writer.append("</pre>\n");
@@ -477,8 +488,8 @@ public class Game {
         
         game.initializeBoard();
 		
-		if(DEBUG) game.clearOutputDirectory();
-        
+        if(DEBUG) game.clearOutputDirectory();
+
         while(game.playersLeft()) game.doTurn();
         
         // Output scores
