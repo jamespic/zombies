@@ -353,7 +353,7 @@ public class Game {
                                     writer.append("<span class=\"X\">D</span>");
                                     break;
                                 case Dead.ZOMBIENAME:
-                                    writer.append("<span class=\"X\">Z</span>");
+                                    writer.append("<span class=\"Z\">Z</span>");
                                     break;
                                 default:
                                     char initial = player.name.charAt(0);
