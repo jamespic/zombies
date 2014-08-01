@@ -20,6 +20,7 @@ public class Shotguneer implements Player {
                     case "ZombieHater":
                     case "Waller":
                     case "Bee":
+                    case "SunTzu":
                     //case "Fox":
                     //case "Coward":
                         return new Shoot(player);

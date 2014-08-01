@@ -35,13 +35,15 @@ public class Game {
         "player.Vortigaunt",
         "player.Fox",
         "player.Sokie",
-        "player.SuperCoward"
+        "player.SuperCoward",
+        "player.SunTzu",
+        "player.SOS"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
 //        "/js-example.js",
-		  "/bee.py",
-          "/john-nash.js"
+		  "/bee.py"
+          ,"/john-nash.js"
 //        "/rb-example.rb",
 //        "/clj-example.clj"
     };

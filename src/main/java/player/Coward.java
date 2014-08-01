@@ -119,6 +119,9 @@ public class Coward implements Player {
             case "Fox":
             case "Cocoon":
             case "SuperCoward":
+            case "SOS":
+            case "JohnNash":
+            case "MoveRandomly":
                 return false;
             default:
                 return true;

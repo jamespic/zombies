@@ -126,6 +126,9 @@ public class Fox implements Player {
             case "Vortigaunt":
             case "Cocoon":
             case "SuperCoward":
+            case "SOS":
+            case "JohnNash":
+            case "MoveRandomly":
                 return false;
             default:
                 return true;

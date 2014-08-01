@@ -99,4 +99,4 @@ function JohnNash() {
     }
 }
 
-PlayerRegistry.registerPlayer("JohnNash", new JohnNash())
+PlayerRegistry.registerPlayer("JohnNash", new Player(new JohnNash()))
