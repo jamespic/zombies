@@ -336,6 +336,7 @@ public class Game {
 				writer.append("    }\n");
 				writer.append("  };\n");
 				writer.append("  </script>\n");
+                writer.append("  <link rel=\"stylesheet\" href=\"style.css\"/>\n");
                 writer.append("  <body>\n");
                 if (gameClock > 0) {
                     writer.append("<a href=\"" + (gameClock - 1) + ".html\">Prev</a>\n");
@@ -347,20 +348,21 @@ public class Game {
                         if (player == null) {
                             writer.append('.');
                         } else {
-                            String title = player.name + ": " + player.bullets + " bullets";
-                            String color;
                             switch(player.name) {
                                 case Dead.DEADBODYNAME:
-                                    color = "white; background-color: black"; break;
+                                    writer.append("<span class=\"X\">D</span>");
+                                    break;
                                 case Dead.ZOMBIENAME:
-                                    color = "white; background-color: green"; break;
+                                    writer.append("<span class=\"X\">Z</span>");
+                                    break;
                                 default:
-                                    color = COLORS[player.name.hashCode() & 7];
+                                    char initial = player.name.charAt(0);
+                                    String title = player.name + ": " + player.bullets + " bullets";
+                                    char cssClass = (char) ('a' + (player.name.hashCode() & 7));
+                                    writer.append("<span class=\"" + cssClass + "\" title=\"" + title + "\">" + initial + "</span>");
                                     break;
                                     
                             }
-                            char initial = player.name.charAt(0);
-                            writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");
                         }
                     }
 					
@@ -379,10 +381,9 @@ public class Game {
 									}
 								}
 								if(contains) {																
-									String color = "white; background-color: black"; 
 									String title = player.name + ": " + player.bullets + " bullets";
 									char initial = player.name.charAt(0);
-									writer.append("<span style=\"color: " + color + "\" title=\"" + title + "\">" + initial + "</span>");	
+									writer.append("<span class=\"X\" title=\"" + title + "\">" + initial + "</span>");	
 								} else {
 									writer.append('.');
 								}                          
