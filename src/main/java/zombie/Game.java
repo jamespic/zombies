@@ -37,7 +37,8 @@ public class Game {
         "player.Sokie",
         "player.SuperCoward",
         "player.SunTzu",
-        "player.SOS"
+        "player.SOS",
+        "player.Jack"
 //        "example.ScalaExample"
     };
     private static final String[] JSR223_PLAYERS = new String[] {
@@ -52,16 +53,6 @@ public class Game {
 //        "example.IOFregeExample",
 //        "example.ContinuationFregeExample"
           "player.Cocoon"
-    };
-    private static final String[] COLORS = new String[] {
-        "Red",
-        "Green",
-        "Chartreuse",
-        "Blue",
-        "DarkOrange",
-        "Gold",
-        "HotPink",
-        "Sienna"
     };
 
 	private static final String[] watchedPlayers = null;

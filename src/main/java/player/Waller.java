@@ -16,12 +16,13 @@ public class Waller implements Player {
 
     private static final int MaximumDistanceToShootZombie = 2;
     private static final int PointsPerWall = 3;
-    private static final int PointsPerLoot = 2;
-    private static final int PointsPerZombie = -50;
-    private static final int PointsPerAggressor = -25;  
+    private static final int PointsPerLoot = 3;
+    private static final int PointsPerZombie = -500;
+    private static final int PointsPerAggressor = -500;  
 
     private static final Set<PlayerId> shooting = new HashSet<PlayerId>();
     private static final Set<PlayerId> dontLoot = new HashSet<PlayerId>();
+    private static final Set<Point> zombieLocations = new HashSet<Point>();
     private Point CurrentLocation = new Point(CENTRE_OF_VISION, CENTRE_OF_VISION);
 
     private static int _lastGameTurn = -1;
@@ -33,10 +34,11 @@ public class Waller implements Player {
     private static int wallsBuilt;
     ////////
 
-    private final class Point{
+    private static class Point{
         public int X;
         public int Y;
         public PlayerId Player;
+        public int Distance;
 
         public Point(int x, int y) {
             X = x;
@@ -95,8 +97,7 @@ public class Waller implements Player {
         @Override
         public String toString(){
             return "("+X+","+Y+")";
-        }
-
+        }           
     }
 
     @Override
@@ -116,15 +117,29 @@ public class Waller implements Player {
                 dontLoot.add(point.Player);  
         }
 
+        int x = context.getX();
+        int y = context.getY();
+        int boardSize = context.getBoardSize();
+        List<Point> newZombies = new ArrayList<Point>();
+        for(Point point : getSurrounding(field, CENTRE_OF_VISION, CENTRE_OF_VISION, VISION_RANGE)){     
+            Point absolutePoint = GetNewTorusPoint(x + point.X - CENTRE_OF_VISION , y + point.Y - CENTRE_OF_VISION, boardSize);         
+            if(point.Player.getName().equals("DeadBody") && zombieLocations.contains(absolutePoint)) 
+                dontLoot.add(point.Player);  // new zombie kill
+            if(isZombie(point.Player))
+                newZombies.add(absolutePoint);
+        }
+        zombieLocations.clear();
+        zombieLocations.addAll(newZombies);
+
         Action action;  
 
         // 1) Handle immediate threats to life, have to be dealt before anything else
         action = AssessThreats(field, bullets);
         if(action != null) return action;
 
-        // 2) Early turn avoidance
+        //2) Early turn avoidance
         if(gameTurn < 5) {
-            action = EarlyTurn(field, bullets);
+            action = EarlyTurn(field, bullets, context);
             if(action != null) return action;
         }
 
@@ -136,16 +151,16 @@ public class Waller implements Player {
                 if(action != null) return action; 
                 return Move.STAY; // no more moving                 
             case 7:     
-                action = ExpandWall(field, bullets);
+                action = ExpandWall(field, bullets, 1);
                 if(action != null) return action;
                 action = ShootAgressivePlayers(field, bullets);
                 if(action != null) return action;                   
             case 6: 
             case 5:              
             case 4: 
-                action = ExpandWall(field, bullets);
-                if(action != null) return action; 
-                break;
+                // action = ExpandWall(field, bullets, 2);
+                // if(action != null) return action; 
+                // break;
             case 2: 
             case 1: 
             default:                                    
@@ -161,14 +176,14 @@ public class Waller implements Player {
         action = ShootAgressivePlayers(field, bullets);
         if(action != null) return action;   
 
-        action = ExpandWall(field, bullets);
+        action = ExpandWall(field, bullets, 1);
         if(action != null) return action;    
 
         // Stay still if nothing better to do
         return Move.STAY;
     }
 
-    private Action EarlyTurn(PlayerId[][] field, int bullets) {
+    private Action EarlyTurn(PlayerId[][] field, int bullets, PlayerContext context) {
         Point bestPoint = CurrentLocation;
         double bestScore = 1000000;
 
@@ -178,16 +193,14 @@ public class Waller implements Player {
                 if(isAgressive(adjacentPoint.Player)){
                     int dist = futurePoint.GetDistance(adjacentPoint);          
                     if(dist > 6){
-                        score += 1;
-                    } else if (dist > 5) {
-                        score += 100;
+                        score += 1;             
                     } else {
                         score += 10000;
                     }
                 } else if(isZombie(adjacentPoint.Player)) {
                     int dist = futurePoint.GetDistance(adjacentPoint);      
                     if (dist <= 3)
-                        score += 100;
+                        score += 10000;
                 } else if(isWall(adjacentPoint.Player)) {
                     score -= 2;
                 }
@@ -198,15 +211,17 @@ public class Waller implements Player {
             }
         }                           
 
-        if(bestScore >= 10000) {
-            Action action = ShootAgressivePlayers(field, bullets);
-            if(action != null) return action;   
-        }
+        //if(_DEBUG) System.out.println("["+_lastGameTurn+"] Best Score: "+bestScore +" point: "+context.getX()+","+context.getY());
 
         if(bestPoint == CurrentLocation) {
             Action action = ShootAgressivePlayers(field, bullets);
             if(action != null) return action;   
             return Move.STAY;
+        }
+
+        if(bestScore >= 1000) {
+            Action action = ShootAgressivePlayers(field, bullets);
+            if(action != null) return action;   
         }
 
         return Move.inDirection(bestPoint.X - CurrentLocation.X, bestPoint.Y - CurrentLocation.Y);      
@@ -220,17 +235,17 @@ public class Waller implements Player {
                     if(_DEBUG) System.out.println("["+_lastGameTurn+"] Killing Aggressive: "+(++agressiveKills));       
                     return new Shoot(player);
                 }           
-            }           
+            }   
         }
         return null;
     }
 
-    private Action ExpandWall(PlayerId[][] field, int bullets) {
+    private Action ExpandWall(PlayerId[][] field, int bullets, int distance) {
         if(bullets > 0) {
-            for(Point point : getSurrounding(field, CENTRE_OF_VISION, CENTRE_OF_VISION, SHOOT_RANGE)) {
+            for(Point point : getSurrounding(field, CENTRE_OF_VISION, CENTRE_OF_VISION, distance)) {
                 PlayerId player = point.Player;
                 if(!isWall(player) && isEnemy(player) && !isZombie(player) && shouldShoot(player)) {
-                    if(_DEBUG) System.out.println("["+_lastGameTurn+"] Expanding Wall: "+(++wallsBuilt));           
+                    if(_DEBUG) System.out.println("["+_lastGameTurn+"] Expanding Wall: "+(++wallsBuilt)+" Dist: "+CurrentLocation.GetDistance(point));          
                     return new Shoot(player);
                 }           
             }
@@ -252,7 +267,7 @@ public class Waller implements Player {
 
     private Action AssessThreats(PlayerId[][] field, int bullets){ 
         // Find the most threatening zombie     
-        List<PlayerId> bestZombies = new ArrayList<PlayerId>();
+        List<Point> bestZombies = new ArrayList<Point>();
         int smallestDistance = MaximumDistanceToShootZombie+1;      
         for(Point point : getSurrounding(field, CENTRE_OF_VISION, CENTRE_OF_VISION, MaximumDistanceToShootZombie)) {
             PlayerId zombie = point.Player;
@@ -265,32 +280,79 @@ public class Waller implements Player {
                         smallestDistance = path.size();
                         bestZombies.clear();
                     }
-                    bestZombies.add(zombie);                                                                                               
+                    bestZombies.add(point);                                                                                            
                 }    
             }
         }
-        // No zombies
+
+        // No zombies to worry about
         if(bestZombies.isEmpty())
-            return null;        
+            return null;
+
+        if(bestZombies.size() > 1) {
+            if(_DEBUG) System.out.println("["+_lastGameTurn+"] Multiple Zombies in striking range, wait them out?");        
+            return MoveToBestSpot(field);   
+        }
+
+        Point zombie = bestZombies.get(0);
 
         // Do we have ammo?
-        if(bullets > 0) {       
-            if(bestZombies.size() == 1 && shouldShoot(bestZombies.get(0))) {
-                if(_DEBUG) System.out.println("["+_lastGameTurn+"] Shooting Zombie: "+(++zombieKills));             
-                return new Shoot(bestZombies.get(0));
-            } 
-
-            if(_DEBUG) System.out.println("["+_lastGameTurn+"] Multiple Zombies in striking range, wait them out?");        
-            return null;        
+        if(bullets > 0 && shouldShoot(zombie.Player)) { 
+            if(_DEBUG) System.out.println("["+_lastGameTurn+"] Shooting Zombie: "+(++zombieKills));             
+            return new Shoot(zombie.Player);
         } 
 
-        if(_DEBUG) System.out.println("["+_lastGameTurn+"] No Bullets to Shoot Zombie! Should flee");               
-        return Move.randomMove();
+        if(_DEBUG) System.out.println("["+_lastGameTurn+"] No Bullets to Shoot Zombie! Should flee");           
+        return MoveInDirection(field, CENTRE_OF_VISION - zombie.X, CENTRE_OF_VISION - zombie.Y);    
+    }
+
+    private Action MoveToBestSpot(PlayerId[][] field) { 
+        int leastZombies = 100000;
+        Point bestPoint = CurrentLocation;
+        for(Point point : CurrentLocation.getAdjacentPoints(field, 1, false)) {
+            if(point.Player == null) {
+                int zombies = countNumberOfSurroundingZombies(field, point.X, point.Y);
+                if(zombies < leastZombies) {
+                    leastZombies = zombies;
+                    bestPoint = point;
+                }
+            }
+        }
+        return Move.inDirection(bestPoint.X - CurrentLocation.X, bestPoint.Y - CurrentLocation.Y);
+    }
+
+    private Action MoveInDirection(PlayerId[][] field, int x, int y) {
+        x = (int)Math.signum(x);
+        y = (int)Math.signum(y);
+
+        if(y == 0){
+            if(field[CENTRE_OF_VISION+x][CENTRE_OF_VISION] != null)
+                return Move.inDirection(x,0);
+            if(field[CENTRE_OF_VISION+x][CENTRE_OF_VISION-1] != null)
+                return Move.inDirection(x,-1);
+            if(field[CENTRE_OF_VISION+x][CENTRE_OF_VISION+1] != null)
+                return Move.inDirection(x,1);   
+        } else if(x == 0){
+            if(field[CENTRE_OF_VISION][CENTRE_OF_VISION+y] != null)
+                return Move.inDirection(0,y);
+            if(field[CENTRE_OF_VISION-1][CENTRE_OF_VISION+y] != null)
+                return Move.inDirection(-1,y);
+            if(field[CENTRE_OF_VISION+1][CENTRE_OF_VISION+y] != null)
+                return Move.inDirection(1,y);   
+        } else {        
+            if(field[CENTRE_OF_VISION+x][CENTRE_OF_VISION+y] != null)
+                return Move.inDirection(x,y);
+            if(field[CENTRE_OF_VISION+x][CENTRE_OF_VISION] != null)
+                return Move.inDirection(x,0);
+            if(field[CENTRE_OF_VISION][CENTRE_OF_VISION+y] != null)
+                return Move.inDirection(0,y);   
+        }
+
+        return Move.inDirection(0,0);   
     }
 
     // Implementation of the A* path finding algorithm
     private LinkedList<Point> findShortestPath_astar(PlayerId[][] field, Point startingPoint, Point finalPoint, boolean includeWeights, boolean considerPlayersAsWalls) {   
-
         LinkedList<Point> foundPath = new LinkedList<Point>();
         Set<Point> openSet = new HashSet<Point>();
         Set<Point> closedSet = new HashSet<Point>();
@@ -307,10 +369,7 @@ public class Waller implements Player {
             int minF = 10000000;
             for(Point point : openSet) {
                 int g = gScores.get(point);
-                int h = point.GetDistance(finalPoint); // Assumes nothing in the way
-                if(includeWeights){
-                    h += (int)-getScore(field,point.X,point.Y);
-                }               
+                int h = point.GetDistance(finalPoint); // Assumes nothing in the way                
                 int f = g + h;
                 if(f < minF) {
                     minF = f;               
@@ -337,6 +396,10 @@ public class Waller implements Player {
                     continue;
 
                 int gScore = gScores.get(currentPoint) + 1; // distance should always be one (may change depending on environment)  
+                // if(includeWeights){
+                    // gScore += (int)-getScore(field,pointToAdd.X,pointToAdd.Y);
+                // }   
+
                 boolean distIsBetter = false;   
 
                 if(!openSet.contains(pointToAdd)) {
@@ -355,17 +418,15 @@ public class Waller implements Player {
         return foundPath;   
     }
 
-    private Move findShortestPath(PlayerId[][] field, Point startingPoint, Set<Point> finalPoints) {     
+    private Action findShortestPath(PlayerId[][] field, Point startingPoint, Set<Point> finalPoints) {    
         if(finalPoints.isEmpty())
             return null;
-
         int smallestPath = 10000;       
-        Point pointToMoveTo = CurrentLocation;  
+        Point pointToMoveTo = startingPoint;  
 
         for(Point finalPoint : finalPoints) {  
-            if(finalPoint == CurrentLocation)
+            if(finalPoint == startingPoint)
                 return null;
-
             LinkedList<Point> path = findShortestPath_astar(field, startingPoint, finalPoint, true, true);
 
             // No path between the two points
@@ -380,27 +441,39 @@ public class Waller implements Player {
             }           
         }       
 
-        if(pointToMoveTo == CurrentLocation)
+        if(pointToMoveTo == startingPoint)
             return null;
+
+        double score = getScore(field, pointToMoveTo.X, pointToMoveTo.Y);
+        if(score < -200) {
+            if(_DEBUG) System.out.println("["+_lastGameTurn+"] Best Path leads to a bad spot: "+score);     
+            return null;
+        }
 
         return Move.inDirection(pointToMoveTo.X - startingPoint.X, pointToMoveTo.Y - startingPoint.Y);          
     }
 
     private Set<Point> scoreSquares(PlayerId[][] field) {
-        double bestScore = getScore(field, CENTRE_OF_VISION, CENTRE_OF_VISION) + 1;
+        double bestScore = getScore(field, CENTRE_OF_VISION, CENTRE_OF_VISION) + 1; // plus one to break ties, and would rather stay
         Set<Point> bestLocations = new HashSet<Point>();
+        if(bestScore >= 0) {
+            bestLocations.add(CurrentLocation);         
+        } else {
+            bestScore = 0;
+        }
 
         for(int x = 0; x < VISION_WIDTH; x++){
-            for(int y = 0; y < VISION_WIDTH; y++){          
-                if(isWall(field[x][y]) || field[x][y] != null) //|| !isMovableTo(field, x, y)
-                    continue;                   
-                double score = getScore(field, x, y);           
-                if(score >= bestScore){
-                    if(score > bestScore) {
-                        bestLocations.clear();
-                        bestScore = score;   
+            for(int y = 0; y < VISION_WIDTH; y++){   
+                if(x == CENTRE_OF_VISION && y == CENTRE_OF_VISION) continue;
+                if(field[x][y] == null) {                                 
+                    double score = getScore(field, x, y);           
+                    if(score >= bestScore){
+                        if(score > bestScore) {
+                            bestLocations.clear();
+                            bestScore = score;   
+                        }
+                        bestLocations.add(new Point(x, y));                      
                     }
-                    bestLocations.add(new Point(x, y));                      
                 }
             }
         }       
@@ -408,21 +481,21 @@ public class Waller implements Player {
     }
 
     private double getScore(PlayerId[][] field, int x, int y) {
-        int walls = countNumberOfSurroundingWalls(field, x, y);
+        int walls = countNumberOfSurroundingWalls(field, x, y); 
         double score = Math.pow(PointsPerWall, walls);      
         int aggressors = countNumberOfSurroundingAggressions(field, x, y);
         score += aggressors * PointsPerAggressor;   
         int zombies = countNumberOfSurroundingZombies(field, x, y);
         score += zombies * PointsPerZombie;
         int loots = countNumberOfSurroundingLoots(field, x, y);
-        score += Math.pow(PointsPerLoot, loots);
+        score += Math.pow(PointsPerLoot, loots);        
         return score;       
     }
 
     private int countNumberOfSurroundingZombies(PlayerId[][] field, int x, int y) {     
         int zombies = 0;
         Point currentPoint = new Point(x,y);
-        for(Point point : getSurrounding(field, x, y, MaximumDistanceToShootZombie)){           
+        for(Point point : getSurrounding(field, x, y, MaximumDistanceToShootZombie+1)){         
             if(isZombie(point.Player)){
                 LinkedList<Point> path = findShortestPath_astar(field, currentPoint, point, false, false);
                 if(path.isEmpty()) 
@@ -447,7 +520,7 @@ public class Waller implements Player {
 
     private int countNumberOfSurroundingAggressions(PlayerId[][] field, int x, int y) {     
         int aggressors = 0; 
-        for(Point point : getSurrounding(field, x, y, SHOOT_RANGE)){
+        for(Point point : getSurrounding(field, x, y, SHOOT_RANGE+1)){
             if(isAgressive(point.Player)){
                 aggressors++;                   
             }            
@@ -478,10 +551,8 @@ public class Waller implements Player {
             return false;
         switch (player.getName()) {  
             case "Waller":
-            case "DeadBody":       
-            case "StandStill":  
+            case "DeadBody": 
             case "EmoWolfWithAGun":
-            case "Vortigaunt":
                 return false;
             default:
                 return true;
@@ -492,41 +563,46 @@ public class Waller implements Player {
         if(player == null)
             return false;
         switch (player.getName()) {  
-            case "Shotguneer":
-            case "HideyTwitchy":   
-            case "ZombieHater":
-            case "Gunner":
-            case "ZombieRightsActivist":    
-            case "Fox":
-            case "Sokie":           
-            case "Coward":
-                return true;
-            default:
+            case "Waller":
+            case "DeadBody":   
+            case "EmoWolfWithAGun":
+            case "GordonFreeman":
+            case "Vortigaunt": 
+            case "StandStill":
+            case "MoveRandomly":
+            case "Zombie":
                 return false;
+            default:
+                return true;
         }
     }
 
     // Helper Functions 
 
-    private List<Point> getSurrounding(PlayerId[][] field, int x, int y, int distance) {              
+    private List<Point> getSurrounding(PlayerId[][] field, int x, int y, int maxDistance) {      
         final Point currentPoint = new Point(x,y);
 
         List<Point> players = new ArrayList<Point>();
-        int minX = coercePoint(x - distance);
-        int maxX = coercePoint(x + distance);
-        int minY = coercePoint(y - distance);
-        int maxY = coercePoint(y + distance);
+        int minX = coercePoint(x - maxDistance);
+        int maxX = coercePoint(x + maxDistance);
+        int minY = coercePoint(y - maxDistance);
+        int maxY = coercePoint(y + maxDistance);
         for(int i = minX; i <= maxX; i++){
             for(int j = minY; j <= maxY; j++) {
-                if(field[i][j] != null) {                               
-                    players.add(new Point(i,minY,field[i][j]));
+                if(i == x && j == y) continue;
+                if(field[i][j] != null) {                
+                    Point point = new Point(i,j,field[i][j]);
+                    point.Distance = currentPoint.GetDistance(point);
+                    players.add(point);
                 }
             }
         }           
+
         Collections.sort(players, new Comparator<Point>() {
             public int compare(Point p1, Point p2) {
-                return Integer.compare(p1.GetDistance(currentPoint),p2.GetDistance(currentPoint));          
-            }});
+                return Integer.compare(p1.Distance, p2.Distance);          
+            }});        
+
         return players;
     }
 
@@ -536,6 +612,14 @@ public class Waller implements Player {
         if(value >= VISION_WIDTH)
             return VISION_WIDTH-1;
         return value;
+    }
+
+    public static Point GetNewTorusPoint(int x, int y, int boardSize) {
+        if(x >= boardSize)
+            x = boardSize - x;
+        if(y >= boardSize)
+            y = boardSize - y;
+        return new Point(x,y);
     }
 
     private static int getDistance(int x1, int y1, int x2, int y2) {
